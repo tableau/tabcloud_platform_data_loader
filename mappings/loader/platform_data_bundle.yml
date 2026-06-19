@@ -1,0 +1,274 @@
+# Platform Data Bundle — combined events + entity snapshots in one Hyper data source.
+#
+# This loader mapping bundles:
+#   1. A unified activity-log event table (write_mode: append) — new rows appended each run.
+#   2. Per-entity-type snapshot tables (write_mode: snapshot) — replaced only when a new
+#      snapshot arrives (replace-on-new, keyed by snapshot timestamp watermark).
+#
+# All tables coexist in a single .hyper file and a single published data source.
+# No primary/foreign keys are declared — analysts join tables downstream in Tableau
+# on whatever fields they choose (e.g. event userLuid → Users snapshot userLuid).
+#
+# Prerequisites:
+#   - Run the transformer with both:
+#       --mapping mappings/transformer/generic_activity_log_auto.yaml
+#       --mapping mappings/transformer/entity_snapshot_auto.yaml
+#   - The snapshot transformer writes per-entity Parquet files and a _manifest.json sidecar
+#     to {storage_path}/transform/snapshots/.
+#
+# Run:
+#   python -m loader --storage-path ./data_workspace \
+#     --loader-mapping mappings/loader/platform_data_bundle.yml
+#
+# Or via the runner:
+#   tabcloud-run -c config/run.yml
+# Publishing is destination-driven — add a destinations block to run.yml and
+# reference it in load.default.destination to publish to Tableau.
+
+load_name: "platform_data_bundle"
+
+# ─── TARGET ─────────────────────────────────────────────────────────────────
+target:
+  type: "hyper"         # Only supported value: "hyper"
+  hyper_path: "{storage_path}/loader/platform_data_bundle.hyper"
+  #   {storage_path} is substituted with the --storage-path CLI argument at runtime.
+  #   Use an absolute path if preferred (e.g. /Users/me/data/my_data.hyper).
+
+
+# ─── TABLES ──────────────────────────────────────────────────────────────────
+# Each table must specify exactly one data source (mutually exclusive):
+#   transformer_mappings: list of transformer mapping YAML paths whose pipeline output
+#                         (a .parquet file named by output_filename) feeds this table.
+#   source_file_path:     directory path (absolute, or relative to cwd; may use {storage_path})
+#                         containing CSV and/or Parquet files to union into this table.
+#   snapshot_source_dir:  transformer snapshot output directory (with _manifest.json sidecar).
+#                         Used exclusively by snapshot/strict_snapshot tables.
+#
+# write_mode controls both the data strategy and what happens when the schema changes:
+#   "replace"        — Rewrite all rows every run. Schema may change freely.
+#   "strict_replace" — Rewrite all rows every run. ERROR if columns added/removed/retyped.
+#   "append"         — Insert rows where increment_field > last loaded max. On schema change,
+#                      auto-rebuild this table (drop + full replace). Requires increment_field.
+#   "strict_append"  — Same incremental append, but ERROR if schema changed. Requires increment_field.
+#   "snapshot"       — Replace this table only when a newer snapshot arrives (watermark check).
+#                      Schema may change freely. Requires snapshot_source_dir.
+#   "strict_snapshot"— Same snapshot gating, but ERROR if schema changed. Requires snapshot_source_dir.
+#                      The watermark is NOT advanced on error so the next run retries.
+
+tables:
+  # ──────────────────────────────────────────────────────────────────────────
+  # Activity-log event table: incremental (append-only).
+  # New rows where eventTime > last loaded max are appended each run.
+  # Tableau PATCH action: "insert" (new rows appended; existing rows preserved).
+  # Use "strict_append" instead if schema changes should halt the run (not auto-rebuild).
+  # ──────────────────────────────────────────────────────────────────────────
+  - table: "ActivityLog"
+    schema: "Extract"
+    transformer_mappings:
+      - "mappings/transformer/generic_activity_log_auto.yaml"
+    write_mode: "append"
+    increment_field: "eventTime"
+    #   Required for append/strict_append. Column used as incremental high-water mark.
+    #   New rows are those where increment_field > the maximum value written in the last run.
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Entity snapshot tables: full replace (DROP + recreate) on newer snapshot.
+  #
+  # Replace mechanic: when the transformer's sidecar manifest shows a newer
+  # snapshot_time than the stored per-table watermark, the existing Hyper table is
+  # DROPPED and recreated from the fresh Parquet file.  This is a true full replace
+  # (not append), so rows are never duplicated across runs, and schema changes such
+  # as added or removed columns are absorbed automatically.  Unchanged snapshots
+  # (same or older snapshot_time) are skipped entirely (no Hyper write, no publish).
+  #
+  # siteLuid column: each snapshot Parquet is produced by the multi-site union
+  # pipeline in entity_snapshot_auto.yaml, which unions the latest snapshot from
+  # every configured site and adds a "siteLuid" column to every row identifying the
+  # source site.  All snapshot tables therefore include this column.
+  #
+  # Tableau PATCH action: "replace" (full table swap when a new snapshot arrives).
+  #
+  # snapshot_source_dir points to where entity_snapshot_auto.yaml wrote its union
+  # output (one {entityType}.parquet per entity type + _manifest.json).  The table
+  # name MUST match the entityType key exactly as emitted in the manifest.
+  #
+  # strict_snapshot: use "strict_snapshot" instead of "snapshot" if schema changes
+  # should ERROR and halt the run.  The watermark is NOT advanced on error, so the
+  # next run retries the same new snapshot and will fail again until the schema
+  # mismatch is resolved.  Plain "snapshot" (allow) absorbs the change silently.
+  # ──────────────────────────────────────────────────────────────────────────
+
+  - table: "data_connections"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "datasources"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "workbooks"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "published_connections"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "published_connection_revisions"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "flows"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "next_gen_permissions"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "projects"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "projects_contents"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "published_connection_tables"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "published_connection_revision_tables"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "subscriptions"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "tasks"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "users"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "system_users"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "views"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "groups"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "group_users"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "taggings"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "tags"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "capabilities"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  # Add additional entity types here as they become available in the API.
+  # Each snapshot entry only needs: table, schema, write_mode, and snapshot_source_dir.
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Tenant-wide reference data: pulled from TCM REST API (not Platform Data API).
+  #
+  # These tables are distinct from the site-level "snapshots" schema:
+  #   - Source: TCM REST API (GET /api/v1/tenants/{tenantId}/users|sites), not presigned Parquet.
+  #   - Scope:  whole tenant (across all sites), not per-site.
+  #   - Schema: "reference" (not "snapshots") to distinguish in Tableau.
+  #   - Transformer: tenant_reference_auto.yaml writes:
+  #       {storage_path}/transform/reference/tenant_sites.parquet
+  #       {storage_path}/transform/reference/tenant_users.parquet
+  #       {storage_path}/transform/reference/_manifest.json  (snapshot_time = pull time)
+  #
+  # Replace mechanic: same drop+recreate watermark gating as entity snapshots.
+  #   A new pull (newer snapshot_time) triggers a full table drop + recreate.
+  #   Unchanged since last run: skipped entirely.
+  #
+  # Join keys (use in Tableau relationships / LOD expressions):
+  #   tenant_users.userLuid  ← alias of TCM userId
+  #   tenant_users.siteLuid  ← alias of siteId from siteRoles[] (membership grain)
+  #   tenant_sites.siteLuid  ← alias of TCM siteUUID
+  #
+  #   ActivityLog.actorUserLuid → tenant_users.userLuid (+siteLuid for site context)
+  #   ActivityLog.siteLuid      → tenant_sites.siteLuid
+  #   tenant_users.siteLuid     → tenant_sites.siteLuid
+  #
+  # Prerequisites:
+  #   - extractor: reference_entities = tenant_sites,tenant_users  (in [extractor])
+  #   - transformer: add tenant_reference_auto.yaml to transformer_mappings  (in [mappings])
+  #
+  # Optional: use write_mode: "strict_snapshot" if schema changes should halt the run.
+  # ──────────────────────────────────────────────────────────────────────────
+
+  - table: "tenant_users"
+    schema: "reference"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/reference"
+    # Grain: one row per (userLuid x siteLuid) — per-site role membership.
+    # Join to ActivityLog: tenant_users.userLuid = ActivityLog.actorUserLuid (+siteLuid).
+
+  - table: "tenant_sites"
+    schema: "reference"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/reference"
+    # Grain: one row per site. siteLuid = alias of TCM siteUUID.
+    # Join to ActivityLog: tenant_sites.siteLuid = ActivityLog.siteLuid.
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Hyper multi-table design notes
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# - A single .hyper file can hold many tables under different schemas.
+#   The Hyper API enforces no primary/foreign keys (only ASSUMED PK/FK,
+#   which are not emitted here).  Analysts join tables in Tableau freely.
+#
+# - The Update Data in Hyper Data Source API sends per-table actions
+#   (insert or replace) in a single PATCH request, so mixed incremental
+#   and snapshot tables are updated efficiently in one call.
+#
+# - We deliberately do NOT use Tableau's auto-inferred relationship model
+#   (2021.4+) because that requires exactly one fact table with FK references
+#   forming a tree; multiple event/fact tables would make publishing fail.
+#   A keyless bundle has no such restriction.
+#
+# - Future option (not built): emit ASSUMED PK/FK on snapshot tables to
+#   let Tableau Server auto-infer relationships — subject to the single-
+#   fact-tree constraint and full-overwrite publishing only.

@@ -1,0 +1,128 @@
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# WARNING: S3 storage is EXPERIMENTAL and not yet fully tested.
+# Local disk storage (the default) is the supported path.
+# Known limitation: temporary/STS credentials (keys with an ASIA* prefix)
+# require a session token that the 'static' provider does not yet support.
+# Use 'aws_default_chain' or 'aws_profile' for assumed-role or instance creds.
+# A runtime warning is emitted whenever this config is loaded.
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# S3 storage backend configuration example.
+#
+# Copy this file to e.g. config/storage.yaml and fill in the values
+# appropriate for your environment.  Point the runner at it with:
+#
+#   storage_config = ../config/storage.yaml   (in config.ini [paths] section)
+#
+# or pass it directly on the CLI:
+#
+#   tabcloud-run --config config/config.ini --storage-config config/storage.yaml
+#
+# NOTE: config/storage.yaml and config/storage.*.yaml are gitignored.
+# Only this .example file is committed. Safe to copy — no secrets here.
+
+# version (optional): config schema version. Omit or set to 1.
+# version: 1
+
+# backend: which storage backend to use.
+#   "local"  (default) — local filesystem; no extra dependencies needed.
+#   "s3"               — AWS S3 (or S3-compatible store); requires .[s3] extra.
+backend: s3
+
+# ─────────────────────────────────────────────────────────────────────────────
+# s3: settings for the S3 backend.  Required when backend is "s3".
+# ─────────────────────────────────────────────────────────────────────────────
+s3:
+  # bucket (required): name of the S3 bucket to store extracted/transformed/loaded files.
+  bucket: your-s3-bucket-name
+
+  # prefix (optional): key prefix within the bucket. A trailing slash is recommended.
+  # All files are stored under <bucket>/<prefix><component>/<path>.
+  prefix: tabcloud/
+
+  # region (optional): AWS region override. If omitted, boto3/s3fs uses the default
+  # from ~/.aws/config, the AWS_DEFAULT_REGION env var, or the instance metadata service.
+  # region: us-east-1
+
+  # endpoint_url (optional): custom S3-compatible endpoint. Use for MinIO, Ceph, LocalStack,
+  # or any other S3-compatible object store.
+  # endpoint_url: https://minio.internal.example.com
+
+  # config_kwargs (optional): dict passed directly to botocore.config.Config.
+  # Useful for tuning timeouts, retries, and signature versions.
+  # config_kwargs:
+  #   retries:
+  #     max_attempts: 5
+  #     mode: adaptive
+  #   connect_timeout: 30
+  #   read_timeout: 60
+
+  # s3fs (optional): additional keyword arguments passed directly to s3fs.S3FileSystem.
+  # Use for low-level tuning not covered by the options above.
+  # s3fs:
+  #   use_ssl: true
+  #   cache_regions: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# credentials: how to authenticate to S3. Choose ONE provider block.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# OPTION 1 — Default credential chain (recommended for EC2 / ECS / Lambda / CI)
+# boto3/s3fs will check environment variables, ~/.aws/credentials, instance role,
+# and OIDC federation automatically. No static credentials needed.
+credentials:
+  provider: aws_default_chain
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# OPTION 2 — Static credentials via secret references (recommended for local development)
+#
+# Store your AWS keys in the OS keychain (nothing written to this file):
+#   pip install -e ".[secrets]"
+#   tabcloud-secrets set tabcloud aws-access-key
+#   tabcloud-secrets set tabcloud aws-secret-key
+#   tabcloud-secrets doctor
+#
+# Then switch to this credentials block (comment out OPTION 1 above):
+#
+# credentials:
+#   provider: static
+#   access_key: keyring:tabcloud/aws-access-key    # or env:AWS_ACCESS_KEY_ID
+#   secret_key: keyring:tabcloud/aws-secret-key    # or env:AWS_SECRET_ACCESS_KEY
+#
+# All secret reference schemes are supported for both fields:
+#   keyring:SERVICE/USERNAME   OS keychain (macOS Keychain / Windows Credential Locker)
+#   env:VAR_NAME               Environment variable
+#   file:/path/to/secret       File contents (strip trailing newline; chmod 600 recommended)
+#   awssm:SECRET_ID#JSON_KEY   AWS Secrets Manager (requires .[s3] extra)
+#   plain:LITERAL              Explicit literal value (for quick local testing only)
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# OPTION 3 — Named AWS profile (for multi-account setups with ~/.aws/config)
+#
+# credentials:
+#   provider: aws_profile
+#   profile: your-aws-profile-name
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# OPTION 4 — AWS Secrets Manager (fetches a static key+secret from SM)
+#
+# credentials:
+#   provider: aws_secrets_manager
+#   secrets_manager:
+#     secret_id: my/s3/credentials    # Secrets Manager secret name or ARN
+#     key_map:                         # optional field name overrides (defaults shown)
+#       access_key: AWS_ACCESS_KEY_ID
+#       secret_key: AWS_SECRET_ACCESS_KEY
+#
+# The secret in SM must be a JSON object with the access_key and secret_key fields.
+# For production, prefer aws_default_chain with an IAM instance/task role instead.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# local: settings for the local filesystem backend (backend: local).
+# Only relevant when backend is "local" — ignored for S3.
+# ─────────────────────────────────────────────────────────────────────────────
+# local:
+#   path: /absolute/path/to/storage   # optional; overrides --storage-path if set

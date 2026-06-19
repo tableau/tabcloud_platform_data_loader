@@ -1,0 +1,1080 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 20251.26.0306.0927                               -->
+<datasource formatted-name='background_jobs' inline='true' source-platform='win' version='18.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <document-format-change-manifest>
+    <ObjectModelEncapsulateLegacy />
+    <ObjectModelTableType />
+    <SchemaViewerObjectModel />
+  </document-format-change-manifest>
+  <repository-location id='BackgroundJobs' path='datasources' revision='1.4' />
+  <connection class='federated'>
+    <named-connections>
+      <named-connection caption='background_jobs' name='hyper.0s1f4sh0cctkxh1cxnamy06urh9p'>
+      <connection authentication='auth-none' author-locale='en_US' class='hyper' dbname='Data/Extracts/background_jobs.hyper' default-settings='yes' server='' sslmode='' username='tableau_internal_user' workgroup-auth-mode='as-is' />
+      </named-connection>
+    </named-connections>
+    <relation connection='hyper.0s1f4sh0cctkxh1cxnamy06urh9p' name='Extract' table='[Extract].[Extract]' type='table' />
+    <metadata-records>
+      <metadata-record class='column'>
+        <remote-name>eventTime</remote-name>
+        <remote-type>135</remote-type>
+        <local-name>[eventTime]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>eventTime</remote-alias>
+        <ordinal>0</ordinal>
+        <local-type>datetime</local-type>
+        <aggregation>Year</aggregation>
+        <approx-count>3497</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>eventProcessedTime</remote-name>
+        <remote-type>135</remote-type>
+        <local-name>[eventProcessedTime]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>eventProcessedTime</remote-alias>
+        <ordinal>1</ordinal>
+        <local-type>datetime</local-type>
+        <aggregation>Year</aggregation>
+        <approx-count>3401</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>eventType</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[eventType]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>eventType</remote-alias>
+        <ordinal>2</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>2</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>actorUserId</remote-name>
+        <remote-type>20</remote-type>
+        <local-name>[actorUserId]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>actorUserId</remote-alias>
+        <ordinal>3</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>actorUserLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[actorUserLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>actorUserLuid</remote-alias>
+        <ordinal>4</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>eventOutcome</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[eventOutcome]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>eventOutcome</remote-alias>
+        <ordinal>5</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>eventOutcomeReason</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[eventOutcomeReason]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>eventOutcomeReason</remote-alias>
+        <ordinal>6</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>initiatingUserId</remote-name>
+        <remote-type>20</remote-type>
+        <local-name>[initiatingUserId]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>initiatingUserId</remote-alias>
+        <ordinal>7</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>initiatingUserLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[initiatingUserLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>initiatingUserLuid</remote-alias>
+        <ordinal>8</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>licensingRoleName</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[licensingRoleName]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>licensingRoleName</remote-alias>
+        <ordinal>9</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>siteLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[siteLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>siteLuid</remote-alias>
+        <ordinal>10</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>23</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>siteRoleId</remote-name>
+        <remote-type>20</remote-type>
+        <local-name>[siteRoleId]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>siteRoleId</remote-alias>
+        <ordinal>11</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>systemAdminLevel</remote-name>
+        <remote-type>20</remote-type>
+        <local-name>[systemAdminLevel]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>systemAdminLevel</remote-alias>
+        <ordinal>12</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>eventState</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[eventState]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>eventState</remote-alias>
+        <ordinal>13</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>7</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>jobId</remote-name>
+        <remote-type>20</remote-type>
+        <local-name>[jobId]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>jobId</remote-alias>
+        <ordinal>14</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <approx-count>1092</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>jobLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[jobLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>jobLuid</remote-alias>
+        <ordinal>15</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>1092</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>jobType</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[jobType]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>jobType</remote-alias>
+        <ordinal>16</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>5</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>duration</remote-name>
+        <remote-type>20</remote-type>
+        <local-name>[duration]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>duration</remote-alias>
+        <ordinal>17</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <approx-count>323</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>notes</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[notes]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>notes</remote-alias>
+        <ordinal>18</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>303</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>objLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[objLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>objLuid</remote-alias>
+        <ordinal>19</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>48</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>objName</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[objName]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>objName</remote-alias>
+        <ordinal>20</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>36</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>objRepositoryUrl</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[objRepositoryUrl]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>objRepositoryUrl</remote-alias>
+        <ordinal>21</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>24</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>objRevision</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[objRevision]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>objRevision</remote-alias>
+        <ordinal>22</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>2</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>objType</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[objType]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>objType</remote-alias>
+        <ordinal>23</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>4</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>siteName</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[siteName]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>siteName</remote-alias>
+        <ordinal>24</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>23</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>args</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[args]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>args</remote-alias>
+        <ordinal>25</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>114</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>eventInitiatedTime</remote-name>
+        <remote-type>135</remote-type>
+        <local-name>[eventInitiatedTime]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>eventInitiatedTime</remote-alias>
+        <ordinal>26</ordinal>
+        <local-type>datetime</local-type>
+        <aggregation>Year</aggregation>
+        <approx-count>957</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>isRunNow</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[isRunNow]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>isRunNow</remote-alias>
+        <ordinal>27</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>3</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>objOwnerLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[objOwnerLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>objOwnerLuid</remote-alias>
+        <ordinal>28</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>5</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>objOwnerName</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[objOwnerName]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>objOwnerName</remote-alias>
+        <ordinal>29</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>3</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>objSize</remote-name>
+        <remote-type>20</remote-type>
+        <local-name>[objSize]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>objSize</remote-alias>
+        <ordinal>30</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <approx-count>199</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>podName</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[podName]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>podName</remote-alias>
+        <ordinal>31</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>4</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>projectLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[projectLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>projectLuid</remote-alias>
+        <ordinal>32</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>30</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>projectName</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[projectName]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>projectName</remote-alias>
+        <ordinal>33</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>23</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>projectOwnerEmail</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[projectOwnerEmail]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>projectOwnerEmail</remote-alias>
+        <ordinal>34</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>projectOwnerLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[projectOwnerLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>projectOwnerLuid</remote-alias>
+        <ordinal>35</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>5</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>scheduleLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[scheduleLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>scheduleLuid</remote-alias>
+        <ordinal>36</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>51</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>scheduleName</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[scheduleName]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>scheduleName</remote-alias>
+        <ordinal>37</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>51</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>taskId</remote-name>
+        <remote-type>20</remote-type>
+        <local-name>[taskId]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>taskId</remote-alias>
+        <ordinal>38</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <approx-count>54</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>taskLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[taskLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>taskLuid</remote-alias>
+        <ordinal>39</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>54</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>timeZone</remote-name>
+        <remote-type>20</remote-type>
+        <local-name>[timeZone]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>timeZone</remote-alias>
+        <ordinal>40</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>bridgeClientComputerName</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[bridgeClientComputerName]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>bridgeClientComputerName</remote-alias>
+        <ordinal>41</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>4</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>bridgeClientDeviceLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[bridgeClientDeviceLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>bridgeClientDeviceLuid</remote-alias>
+        <ordinal>42</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>bridgeClientOwnerLuid</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[bridgeClientOwnerLuid]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>bridgeClientOwnerLuid</remote-alias>
+        <ordinal>43</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>bridgeClientOwnerName</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[bridgeClientOwnerName]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>bridgeClientOwnerName</remote-alias>
+        <ordinal>44</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>1</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>bridgeClientVersion</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[bridgeClientVersion]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>bridgeClientVersion</remote-alias>
+        <ordinal>45</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>2</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>poolId</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[poolId]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>poolId</remote-alias>
+        <ordinal>46</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>3</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>poolName</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[poolName]</local-name>
+        <parent-name>[Extract]</parent-name>
+        <remote-alias>poolName</remote-alias>
+        <ordinal>47</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <approx-count>3</approx-count>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <object-id>[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]</object-id>
+      </metadata-record>
+    </metadata-records>
+  </connection>
+  <aliases enabled='yes' />
+  <column caption='Item LUID' datatype='string' name='[Calculation_1166713787199430659]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [Calculation_1166713788613742607]:    &#13;&#10;    MAX(LOWER([objLuid]))&#13;&#10;}' />
+    <desc>
+      <formatted-text>
+        <run>The LUID of the item. The LUID is unique within each item type and site. Primarily used to reference content via the REST API.</run>
+      </formatted-text>
+    </desc>
+  </column>
+  <column caption='Job LUID' datatype='string' name='[Calculation_1166713788613742607]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='LOWER([jobLuid])' />
+  </column>
+  <column caption='Obj Type (impute from args)' datatype='string' name='[Calculation_1396678843169206273]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='IF ISNULL([objType]) AND NOT ISNULL([args]) &#13;&#10;THEN&#13;&#10;    IF [jobType] = &apos;CreateExtracts&apos;&#13;&#10;        OR [jobType] = &apos;EncryptExtracts&apos;&#13;&#10;        OR [jobType] = &apos;EnqueueDataAlerts&apos;&#13;&#10;        OR [jobType] = &apos;MaterializeViews&apos;&#13;&#10;        OR [jobType] = &apos;RefreshExtracts&apos;&#13;&#10;    THEN REPLACE(&#13;&#10;            SPLIT([args], &apos;,&apos;,1),&#13;&#10;            &apos;[&apos;,&#13;&#10;            &apos;&apos;&#13;&#10;         )        &#13;&#10;        ELSE NULL&#13;&#10;    END&#13;&#10;ELSE NULL&#13;&#10;END' />
+  </column>
+  <column caption='Last Record Date' datatype='datetime' name='[Calculation_1763159319831965698]' role='dimension' type='ordinal'>
+    <calculation class='tableau' formula='{ MAX([eventTime]) } // Fixed LOD to find the last date value in the entire data set' />
+  </column>
+  <column caption='Job Queued At' datatype='datetime' name='[Calculation_1867023573835550723]' role='dimension' type='ordinal'>
+    <calculation class='tableau' formula='{ FIXED [Calculation_1166713788613742607]:&#13;&#10;&#13;&#10;    MAX( // double maxing is because passing multiple arguments to MAX makes it &quot;not an aggregate&quot; - dumb!&#13;&#10;        MAX( &#13;&#10;            (IF CONTAINS(LOWER([eventState]), &apos;queued&apos;) THEN [eventTime] ELSE NULL END),&#13;&#10;            [Job Completed At (copy)_1763159319825977345] // it if wasn&apos;t queued, then the created time is the queued time&#13;&#10;        )&#13;&#10;    )&#13;&#10;}' />
+  </column>
+  <column caption='Job Queued Duration (s)' datatype='integer' name='[Calculation_1867023573837676551]' role='measure' type='quantitative'>
+    <calculation class='tableau' formula='IFNULL(DATEDIFF(&apos;second&apos;, [Calculation_1867023573835550723], IFNULL([Job Created Time (copy)_1867023573836746757], [Calculation_1763159319831965698])), 0)' />
+  </column>
+  <column caption='Item LUID Is NULL' datatype='boolean' name='[Calculation_2288391620038856704]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='ISNULL([objLuid])' />
+  </column>
+  <column caption='Is Last Job Record' datatype='boolean' name='[Event State (copy) (copy)_1867023574713860105]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [Calculation_1166713788613742607]:&#13;&#10;&#13;&#10;MAX([eventTime])&#13;&#10;&#13;&#10;} = [eventTime]' />
+  </column>
+  <column caption='Last Job State' datatype='string' name='[Event State (copy)_1867023574713659400]' role='dimension' semantic-role='' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [Calculation_1166713788613742607]:&#13;&#10;&#13;&#10;MAX(IF [Event State (copy) (copy)_1867023574713860105] THEN [eventState] ELSE NULL END)&#13;&#10;&#13;&#10;}' />
+  </column>
+  <column caption='Event State' datatype='string' name='[Event State (copy)_2288391620445376515]' role='dimension' semantic-role='' type='nominal'>
+    <calculation class='tableau' formula='IF CONTAINS(LOWER([eventState]), &apos;failed&apos;)&#13;&#10;    THEN &apos;Failed&apos;&#13;&#10;ELSEIF CONTAINS(LOWER([eventState]), &apos;success&apos;)&#13;&#10;    THEN &apos;Success&apos;&#13;&#10;ELSEIF CONTAINS(LOWER([eventState]), &apos;queued&apos;)&#13;&#10;    THEN &apos;Queued&apos;&#13;&#10;ELSEIF CONTAINS(LOWER([eventState]), &apos;promoted&apos;)&#13;&#10;    THEN &apos;Promoted&apos;&#13;&#10;ELSEIF CONTAINS(LOWER([eventState]), &apos;started&apos;)&#13;&#10;    THEN &apos;Started&apos;&#13;&#10;ELSE &apos;Unknown&apos;&#13;&#10;END' />
+  </column>
+  <column caption='Is First Job Record' datatype='boolean' name='[Is Last Job Record (copy)_1763159319825780736]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [Calculation_1166713788613742607]:&#13;&#10;&#13;&#10;    MIN([eventTime])&#13;&#10;&#13;&#10;} = [eventTime]' />
+  </column>
+  <column caption='Item Name  Is NULL' datatype='boolean' name='[Item LUID Is NULL (copy)_2288391620039077889]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='ISNULL([objName])' />
+  </column>
+  <column caption='Item Name' datatype='string' name='[Item Luid (copy)_1166713787200434180]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [jobLuid]:&#13;&#10;    MAX(&#13;&#10;        IFNULL(&#13;&#10;            [objName], &#13;&#10;            [Obj Type (impute from args) (copy)_1166713787198435329])&#13;&#10;        )&#13;&#10;}' />
+    <desc>
+      <formatted-text>
+        <run>For data sources, flows, and workbooks, the display name of the item that the job is related to.</run>
+      </formatted-text>
+    </desc>
+  </column>
+  <column caption='Item Type' datatype='string' name='[Item Name (copy)_1166713787202101253]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [jobLuid]:&#13;&#10;    MAX(&#13;&#10;        IFNULL(&#13;&#10;            CASE&#13;&#10;                LOWER(&#13;&#10;                    IFNULL(&#13;&#10;                        [objType], &#13;&#10;                        [Calculation_1396678843169206273]&#13;&#10;                    )&#13;&#10;                )&#13;&#10;                WHEN &apos;datasource&apos; THEN &apos;Datasource&apos;&#13;&#10;                WHEN &apos;flow&apos; THEN &apos;Flow&apos;&#13;&#10;                WHEN &apos;publishedconnection&apos; THEN &apos;PublishedConnection&apos;&#13;&#10;                WHEN &apos;workbook&apos; THEN &apos;Workbook&apos;&#13;&#10;            END,&#13;&#10;            (IF CONTAINS(LOWER([jobType]), &apos;flow&apos;) THEN &apos;Flow&apos; ELSE NULL END) // assume a Flow if the job is running one&#13;&#10;        )&#13;&#10;    )&#13;&#10;}' />
+    <desc>
+      <formatted-text>
+        <run>For data sources, flows, and workbooks, the display name of the item that the job is related to.</run>
+      </formatted-text>
+    </desc>
+  </column>
+  <column caption='Item Owner Username' datatype='string' name='[Item Owner Luid (copy)_1166713787206901773]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [jobLuid]:&#13;&#10;    MAX([objOwnerName])&#13;&#10;}' />
+    <desc>
+      <formatted-text>
+        <run>Username of the item owner.</run>
+      </formatted-text>
+    </desc>
+  </column>
+  <column caption='Parent Project Name' datatype='string' name='[Item Type (copy)_1166713787203604486]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [jobLuid]:&#13;&#10;    MAX(&#13;&#10;       [projectName]&#13;&#10;    )&#13;&#10;}' />
+    <desc>
+      <formatted-text>
+        <run>The name of this item’s Parent Project.</run>
+      </formatted-text>
+    </desc>
+  </column>
+  <column caption='Item Owner Luid' datatype='string' name='[Item Type (copy)_1166713787205185547]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [jobLuid]:&#13;&#10;    MAX([objOwnerLuid])&#13;&#10;}' />
+    <desc>
+      <formatted-text>
+        <run>LUID of the item owner.</run>
+      </formatted-text>
+    </desc>
+  </column>
+  <column caption='Item Content URL' datatype='string' name='[Item Type (copy)_1166713787205713932]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [jobLuid]:&#13;&#10;    MAX([objRepositoryUrl])&#13;&#10;}' />
+    <desc>
+      <formatted-text>
+        <run>The content URL of the item, which represents a web-safe representation of the item name.</run>
+      </formatted-text>
+    </desc>
+  </column>
+  <column caption='Job Created At' datatype='datetime' name='[Job Completed At (copy)_1763159319825977345]' role='dimension' type='ordinal'>
+    <calculation class='tableau' formula='{ FIXED [Calculation_1166713788613742607]:&#13;&#10;&#13;&#10;    MIN( IF [Is Last Job Record (copy)_1763159319825780736] THEN [eventTime] ELSE NULL END )&#13;&#10;&#13;&#10;}' />
+  </column>
+  <column caption='Job Started At' datatype='datetime' default-format='*m/d/yyyy hh:nn:ss:000' name='[Job Created Time (copy)_1867023573836746757]' role='dimension' type='ordinal'>
+    <calculation class='tableau' formula='{ FIXED [Calculation_1166713788613742607]:&#13;&#10;&#13;&#10;MIN( IF CONTAINS(LOWER([eventState]), &apos;started&apos;) THEN [eventTime] ELSE NULL END)&#13;&#10;&#13;&#10;}' />
+  </column>
+  <column caption='Job Total Duration (s)' datatype='integer' name='[Job Execution Duration (s) (copy)_1867023574719111179]' role='measure' type='quantitative'>
+    <calculation class='tableau' formula='DATEDIFF(&#13;&#10;    &apos;second&apos;, &#13;&#10;    [Job Completed At (copy)_1763159319825977345],&#13;&#10;&#13;&#10;    // ideal: job is complete, duration is known.&#13;&#10;        // if not complete, NOW() with max of last known dataset date&#13;&#10;    IFNULL([Job Started At (copy)_1867023573837135878], [Calculation_1763159319831965698])&#13;&#10;)' />
+  </column>
+  <column caption='Job Execution Duration (s)' datatype='integer' name='[Job Queued Duration (s) (copy)_1867023574715740170]' role='measure' type='quantitative'>
+    <calculation class='tableau' formula='IFNULL(&#13;&#10;    DATEDIFF(&#13;&#10;        &apos;second&apos;, &#13;&#10;        [Job Created Time (copy)_1867023573836746757], &#13;&#10;        IFNULL([Job Started At (copy)_1867023573837135878], [Calculation_1763159319831965698]) // if the job hasn&apos;t completed, use the duration so far&#13;&#10;                                            // This will result in very long durations without data.&#13;&#10;                                            // Once data arrives, it will be pared back to reality&#13;&#10;    ),&#13;&#10;    0&#13;&#10;)' />
+  </column>
+  <column caption='Job Completed At' datatype='datetime' name='[Job Started At (copy)_1867023573837135878]' role='dimension' type='ordinal'>
+    <calculation class='tableau' formula='{ FIXED [Calculation_1166713788613742607]:&#13;&#10;&#13;&#10;MAX(&#13;&#10;    IF &#13;&#10;        CONTAINS(LOWER([eventState]), &apos;succe&apos;) OR&#13;&#10;        CONTAINS(LOWER([eventState]), &apos;fail&apos;) OR&#13;&#10;        CONTAINS(LOWER([eventState]), &apos;cancel&apos;)&#13;&#10;            THEN [eventTime]&#13;&#10;        ELSE NULL&#13;&#10;        END&#13;&#10;)&#13;&#10;&#13;&#10;}' />
+  </column>
+  <column caption='Job Total Duration (d)' datatype='real' name='[Job Total Duration (s) (copy)_1867023574722187276]' role='measure' type='quantitative'>
+    <calculation class='tableau' formula='([Job Execution Duration (s) (copy)_1867023574719111179] / 86400.0)' />
+  </column>
+  <column caption='Error Message' datatype='string' name='[Last Job State (copy)_2288391620448075780]' role='dimension' semantic-role='' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [Calculation_1166713788613742607]:&#13;&#10;&#13;&#10;MAX(IF [Event State (copy) (copy)_1867023574713860105] AND [Event State (copy)_2288391620445376515] = &apos;Failed&apos; THEN [notes] ELSE NULL END)&#13;&#10;&#13;&#10;}' />
+  </column>
+  <column caption='Obj Name (impute from args)' datatype='string' name='[Obj Type (impute from args) (copy)_1166713787198435329]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='IF ISNULL([objName]) AND NOT ISNULL([args]) &#13;&#10;THEN&#13;&#10;    IF [jobType] = &apos;CreateExtracts&apos;&#13;&#10;            OR [jobType] = &apos;EncryptExtracts&apos;&#13;&#10;            OR [jobType] = &apos;EnqueueDataAlerts&apos;&#13;&#10;            OR [jobType] = &apos;MaterializeViews&apos;&#13;&#10;            OR [jobType] = &apos;RefreshExtracts&apos;&#13;&#10;    THEN REPLACE(&#13;&#10;                    SPLIT([args], &apos;,&apos;,3),&#13;&#10;            &apos;[&apos;,&#13;&#10;            &apos;&apos;&#13;&#10;         )       &#13;&#10;    ELSEIF [jobType] = &apos;ExtractServiceFullRefreshExtractTask&apos;&#13;&#10;        THEN REPLACE(&#13;&#10;                        SPLIT([args], &apos;,&apos;,2),&#13;&#10;                &apos;[&apos;,&#13;&#10;                &apos;&apos;&#13;&#10;             )        &#13;&#10;    ELSE NULL&#13;&#10;    END&#13;&#10;ELSE NULL&#13;&#10;END' />
+  </column>
+  <column caption='Parent Project LUID' datatype='string' name='[Parent Project Name (copy)_1166713787203829767]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [jobLuid]:&#13;&#10;    MAX(&#13;&#10;       [projectLuid]&#13;&#10;    )&#13;&#10;}' />
+    <desc>
+      <formatted-text>
+        <run>The LUID of this item’s Parent Project.</run>
+      </formatted-text>
+    </desc>
+  </column>
+  <column caption='Parent Project Owner LUID' datatype='string' name='[Parent Project Owner Email (copy)_1166713787204497417]' role='dimension' type='nominal'>
+    <calculation class='tableau' formula='{ FIXED [jobLuid]:&#13;&#10;    MAX(&#13;&#10;       [projectOwnerLuid]&#13;&#10;    )&#13;&#10;}' />
+    <desc>
+      <formatted-text>
+        <run>Theuser LUID of the owner of the parent project (if any) that the item exists within.</run>
+      </formatted-text>
+    </desc>
+  </column>
+  <column caption='Extract' datatype='table' name='[__tableau_internal_object_id__].[Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3]' role='measure' type='quantitative' />
+  <column caption='Actor User Id' datatype='integer' name='[actorUserId]' role='dimension' type='ordinal' />
+  <column caption='Actor User Luid' datatype='string' name='[actorUserLuid]' role='dimension' type='nominal' />
+  <column caption='Args' datatype='string' name='[args]' role='dimension' type='nominal' />
+  <column caption='Bridge Client Computer Name' datatype='string' name='[bridgeClientComputerName]' role='dimension' type='nominal' />
+  <column caption='Bridge Client Device Luid' datatype='string' name='[bridgeClientDeviceLuid]' role='dimension' type='nominal' />
+  <column caption='Bridge Client Owner Luid' datatype='string' name='[bridgeClientOwnerLuid]' role='dimension' type='nominal' />
+  <column caption='Bridge Client Owner Name' datatype='string' name='[bridgeClientOwnerName]' role='dimension' type='nominal' />
+  <column caption='Bridge Client Version' datatype='string' name='[bridgeClientVersion]' role='dimension' type='nominal' />
+  <column caption='Duration' datatype='integer' name='[duration]' role='measure' type='quantitative' />
+  <column caption='Event Initiated Time' datatype='datetime' name='[eventInitiatedTime]' role='dimension' type='ordinal' />
+  <column caption='Event Outcome Reason' datatype='string' name='[eventOutcomeReason]' role='dimension' type='nominal' />
+  <column caption='Event Outcome' datatype='string' name='[eventOutcome]' role='dimension' type='nominal' />
+  <column caption='Event Processed Time' datatype='datetime' name='[eventProcessedTime]' role='dimension' type='ordinal' />
+  <column caption='Event State (orig)' datatype='string' name='[eventState]' role='dimension' type='nominal' />
+  <column caption='Event Time' datatype='datetime' default-format='*m/d/yyyy h:nn:ss:000 AMPM' name='[eventTime]' role='dimension' type='ordinal' />
+  <column caption='Event Type' datatype='string' name='[eventType]' role='dimension' type='nominal' />
+  <column caption='Initiating User Id' datatype='integer' name='[initiatingUserId]' role='dimension' type='ordinal' />
+  <column caption='Initiating User Luid' datatype='string' name='[initiatingUserLuid]' role='dimension' type='nominal' />
+  <column caption='Is Run Now' datatype='string' name='[isRunNow]' role='dimension' type='nominal' />
+  <column caption='Job Id' datatype='integer' name='[jobId]' role='dimension' type='ordinal' />
+  <column caption='Job Luid (orig)' datatype='string' name='[jobLuid]' role='dimension' type='nominal' />
+  <column caption='Job Type' datatype='string' name='[jobType]' role='dimension' type='nominal' />
+  <column caption='Licensing Role Name' datatype='string' name='[licensingRoleName]' role='dimension' type='nominal' />
+  <column caption='Notes' datatype='string' name='[notes]' role='dimension' type='nominal' />
+  <column caption='Obj Luid  (orig)' datatype='string' name='[objLuid]' role='dimension' type='nominal' />
+  <column caption='Obj Name (orig)' datatype='string' name='[objName]' role='dimension' type='nominal' />
+  <column caption='Obj Owner Luid' datatype='string' name='[objOwnerLuid]' role='dimension' type='nominal' />
+  <column caption='Obj Owner Name' datatype='string' name='[objOwnerName]' role='dimension' type='nominal' />
+  <column caption='Obj Repository Url' datatype='string' name='[objRepositoryUrl]' role='dimension' type='nominal' />
+  <column caption='Obj Revision' datatype='string' name='[objRevision]' role='dimension' type='nominal' />
+  <column caption='Obj Size' datatype='integer' name='[objSize]' role='measure' type='quantitative' />
+  <column caption='Obj Type' datatype='string' name='[objType]' role='dimension' type='nominal' />
+  <column caption='Pod Name' datatype='string' name='[podName]' role='dimension' type='nominal' />
+  <column caption='Pool Id' datatype='string' name='[poolId]' role='dimension' type='nominal' />
+  <column caption='Pool Name' datatype='string' name='[poolName]' role='dimension' type='nominal' />
+  <column caption='Project Luid' datatype='string' name='[projectLuid]' role='dimension' type='nominal' />
+  <column caption='Project Name' datatype='string' name='[projectName]' role='dimension' type='nominal' />
+  <column caption='Project Owner Email' datatype='string' name='[projectOwnerEmail]' role='dimension' type='nominal' />
+  <column caption='Project Owner Luid' datatype='string' name='[projectOwnerLuid]' role='dimension' type='nominal' />
+  <column caption='Schedule Luid' datatype='string' name='[scheduleLuid]' role='dimension' type='nominal' />
+  <column caption='Schedule Name' datatype='string' name='[scheduleName]' role='dimension' type='nominal' />
+  <column caption='Site Luid' datatype='string' name='[siteLuid]' role='dimension' type='nominal' />
+  <column caption='Site Name' datatype='string' name='[siteName]' role='dimension' type='nominal' />
+  <column caption='Site Role Id' datatype='integer' name='[siteRoleId]' role='dimension' type='ordinal' />
+  <column aggregation='Sum' caption='System Admin Level' datatype='integer' name='[systemAdminLevel]' role='dimension' type='ordinal' />
+  <column caption='Task Id' datatype='integer' name='[taskId]' role='dimension' type='ordinal' />
+  <column caption='Task Luid' datatype='string' name='[taskLuid]' role='dimension' type='nominal' />
+  <column caption='Time Zone' datatype='integer' name='[timeZone]' role='measure' type='quantitative' />
+  <column-instance column='[Event State (copy)_1867023574713659400]' derivation='None' name='[none:Event State (copy)_1867023574713659400:nk]' pivot='key' type='nominal' />
+  <column-instance column='[Item Luid (copy)_1166713787200434180]' derivation='None' name='[none:Item Luid (copy)_1166713787200434180:nk]' pivot='key' type='nominal' />
+  <column-instance column='[Job Created Time (copy)_1867023573836746757]' derivation='None' name='[none:Job Created Time (copy)_1867023573836746757:qk]' pivot='key' type='quantitative' />
+  <column-instance column='[eventState]' derivation='None' name='[none:eventState:nk]' pivot='key' type='nominal' />
+  <column-instance column='[eventType]' derivation='None' name='[none:eventType:nk]' pivot='key' type='nominal' />
+  <column-instance column='[notes]' derivation='None' name='[none:notes:nk]' pivot='key' type='nominal' />
+  <group hidden='true' name='[Inclusions (Event State (orig),Event Type,Item Name,Job Started At,Last Job State,Notes)]' name-style='unqualified' user:auto-column='include'>
+    <groupfilter function='crossjoin'>
+      <groupfilter function='level-members' level='[none:eventState:nk]' />
+      <groupfilter function='level-members' level='[none:eventType:nk]' />
+      <groupfilter function='level-members' level='[none:Item Luid (copy)_1166713787200434180:nk]' />
+      <groupfilter function='level-members' level='[none:Job Created Time (copy)_1867023573836746757:qk]' />
+      <groupfilter function='level-members' level='[none:Event State (copy)_1867023574713659400:nk]' />
+      <groupfilter function='level-members' level='[none:notes:nk]' />
+    </groupfilter>
+  </group>
+  <folders-common>
+    <folder name='Actor User'>
+      <folder-item name='[actorUserId]' type='field' />
+      <folder-item name='[actorUserLuid]' type='field' />
+      <folder-item name='[initiatingUserId]' type='field' />
+      <folder-item name='[initiatingUserLuid]' type='field' />
+      <folder-item name='[licensingRoleName]' type='field' />
+      <folder-item name='[siteRoleId]' type='field' />
+      <folder-item name='[systemAdminLevel]' type='field' />
+    </folder>
+    <folder name='Bridge'>
+      <folder-item name='[bridgeClientComputerName]' type='field' />
+      <folder-item name='[bridgeClientDeviceLuid]' type='field' />
+      <folder-item name='[bridgeClientOwnerLuid]' type='field' />
+      <folder-item name='[bridgeClientOwnerName]' type='field' />
+      <folder-item name='[bridgeClientVersion]' type='field' />
+      <folder-item name='[poolId]' type='field' />
+      <folder-item name='[poolName]' type='field' />
+    </folder>
+    <folder name='DELETE'>
+      <folder-item name='[Calculation_2288391620038856704]' type='field' />
+      <folder-item name='[Item LUID Is NULL (copy)_2288391620039077889]' type='field' />
+    </folder>
+    <folder name='Dates'>
+      <folder-item name='[Calculation_1867023573835550723]' type='field' />
+      <folder-item name='[Job Completed At (copy)_1763159319825977345]' type='field' />
+      <folder-item name='[Job Created Time (copy)_1867023573836746757]' type='field' />
+      <folder-item name='[Job Started At (copy)_1867023573837135878]' type='field' />
+      <folder-item name='[eventInitiatedTime]' type='field' />
+      <folder-item name='[eventProcessedTime]' type='field' />
+      <folder-item name='[eventTime]' type='field' />
+    </folder>
+    <folder name='HIDE'>
+      <folder-item name='[Calculation_1396678843169206273]' type='field' />
+      <folder-item name='[Calculation_1763159319831965698]' type='field' />
+      <folder-item name='[Obj Type (impute from args) (copy)_1166713787198435329]' type='field' />
+      <folder-item name='[eventState]' type='field' />
+      <folder-item name='[jobLuid]' type='field' />
+      <folder-item name='[notes]' type='field' />
+      <folder-item name='[objLuid]' type='field' />
+      <folder-item name='[objName]' type='field' />
+      <folder-item name='[objOwnerLuid]' type='field' />
+      <folder-item name='[objOwnerName]' type='field' />
+      <folder-item name='[objRepositoryUrl]' type='field' />
+      <folder-item name='[objRevision]' type='field' />
+      <folder-item name='[objSize]' type='field' />
+      <folder-item name='[objType]' type='field' />
+    </folder>
+    <folder name='Item'>
+      <folder-item name='[Calculation_1166713787199430659]' type='field' />
+      <folder-item name='[Item Luid (copy)_1166713787200434180]' type='field' />
+      <folder-item name='[Item Name (copy)_1166713787202101253]' type='field' />
+      <folder-item name='[Item Owner Luid (copy)_1166713787206901773]' type='field' />
+      <folder-item name='[Item Type (copy)_1166713787203604486]' type='field' />
+      <folder-item name='[Item Type (copy)_1166713787205185547]' type='field' />
+      <folder-item name='[Item Type (copy)_1166713787205713932]' type='field' />
+      <folder-item name='[Parent Project Name (copy)_1166713787203829767]' type='field' />
+      <folder-item name='[Parent Project Owner Email (copy)_1166713787204497417]' type='field' />
+      <folder-item name='[projectLuid]' type='field' />
+      <folder-item name='[projectName]' type='field' />
+      <folder-item name='[projectOwnerEmail]' type='field' />
+      <folder-item name='[projectOwnerLuid]' type='field' />
+    </folder>
+    <folder name='Job'>
+      <folder-item name='[Calculation_1166713788613742607]' type='field' />
+      <folder-item name='[Event State (copy) (copy)_1867023574713860105]' type='field' />
+      <folder-item name='[Event State (copy)_1867023574713659400]' type='field' />
+      <folder-item name='[Event State (copy)_2288391620445376515]' type='field' />
+      <folder-item name='[Is Last Job Record (copy)_1763159319825780736]' type='field' />
+      <folder-item name='[Last Job State (copy)_2288391620448075780]' type='field' />
+      <folder-item name='[args]' type='field' />
+      <folder-item name='[eventOutcomeReason]' type='field' />
+      <folder-item name='[eventOutcome]' type='field' />
+      <folder-item name='[eventType]' type='field' />
+      <folder-item name='[isRunNow]' type='field' />
+      <folder-item name='[jobId]' type='field' />
+      <folder-item name='[jobType]' type='field' />
+      <folder-item name='[scheduleLuid]' type='field' />
+      <folder-item name='[scheduleName]' type='field' />
+      <folder-item name='[taskId]' type='field' />
+      <folder-item name='[taskLuid]' type='field' />
+    </folder>
+    <folder name='Site'>
+      <folder-item name='[podName]' type='field' />
+      <folder-item name='[siteLuid]' type='field' />
+      <folder-item name='[siteName]' type='field' />
+    </folder>
+  </folders-common>
+  <layout common-percentage='1' dim-ordering='alphabetic' measure-ordering='alphabetic' rowDisplayCount='10000' show-structure='false' user-set-layout-v2='true' />
+  <style>
+    <style-rule element='mark'>
+      <encoding attr='color' field='[none:eventState:nk]' type='palette'>
+        <map to='#4e79a7'>
+          <bucket>&quot;JobSuccess&quot;</bucket>
+        </map>
+        <map to='#59a14f'>
+          <bucket>&quot;JobStarted&quot;</bucket>
+        </map>
+        <map to='#bab0ac'>
+          <bucket>&quot;JobOverflowPromoted&quot;</bucket>
+        </map>
+        <map to='#bab0ac'>
+          <bucket>&quot;JobOverflowQueued&quot;</bucket>
+        </map>
+        <map to='#bab0ac'>
+          <bucket>&quot;JobQueued&quot;</bucket>
+        </map>
+        <map to='#e15759'>
+          <bucket>&quot;Failed&quot;</bucket>
+        </map>
+        <map to='#e15759'>
+          <bucket>&quot;JobFailed&quot;</bucket>
+        </map>
+        <map to='#f28e2b'>
+          <bucket>&quot;JobDeadJobRetried&quot;</bucket>
+        </map>
+      </encoding>
+      <encoding attr='color' field='[none:Event State (copy)_1867023574713659400:nk]' type='palette'>
+        <map to='#4e79a7'>
+          <bucket>&quot;JobSuccess&quot;</bucket>
+        </map>
+        <map to='#59a14f'>
+          <bucket>&quot;JobStarted&quot;</bucket>
+        </map>
+        <map to='#e15759'>
+          <bucket>&quot;Failed&quot;</bucket>
+        </map>
+        <map to='#e15759'>
+          <bucket>&quot;JobFailed&quot;</bucket>
+        </map>
+      </encoding>
+    </style-rule>
+  </style>
+  <semantic-values>
+    <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+  </semantic-values>
+  <field-sort-info field-sort-order-type='custom-order'>
+    <field-sort-custom-order field='eventTime' />
+    <field-sort-custom-order field='eventProcessedTime' />
+    <field-sort-custom-order field='eventType' />
+    <field-sort-custom-order field='actorUserId' />
+    <field-sort-custom-order field='actorUserLuid' />
+    <field-sort-custom-order field='eventOutcome' />
+    <field-sort-custom-order field='eventOutcomeReason' />
+    <field-sort-custom-order field='initiatingUserId' />
+    <field-sort-custom-order field='initiatingUserLuid' />
+    <field-sort-custom-order field='licensingRoleName' />
+    <field-sort-custom-order field='siteLuid' />
+    <field-sort-custom-order field='siteRoleId' />
+    <field-sort-custom-order field='systemAdminLevel' />
+    <field-sort-custom-order field='eventState' />
+    <field-sort-custom-order field='Event State (copy)_2288391620445376515' />
+    <field-sort-custom-order field='jobId' />
+    <field-sort-custom-order field='jobLuid' />
+    <field-sort-custom-order field='jobType' />
+    <field-sort-custom-order field='duration' />
+    <field-sort-custom-order field='notes' />
+    <field-sort-custom-order field='objLuid' />
+    <field-sort-custom-order field='objName' />
+    <field-sort-custom-order field='objRepositoryUrl' />
+    <field-sort-custom-order field='objRevision' />
+    <field-sort-custom-order field='objType' />
+    <field-sort-custom-order field='siteName' />
+    <field-sort-custom-order field='args' />
+    <field-sort-custom-order field='eventInitiatedTime' />
+    <field-sort-custom-order field='isRunNow' />
+    <field-sort-custom-order field='objOwnerLuid' />
+    <field-sort-custom-order field='objOwnerName' />
+    <field-sort-custom-order field='objSize' />
+    <field-sort-custom-order field='podName' />
+    <field-sort-custom-order field='projectLuid' />
+    <field-sort-custom-order field='projectName' />
+    <field-sort-custom-order field='projectOwnerEmail' />
+    <field-sort-custom-order field='projectOwnerLuid' />
+    <field-sort-custom-order field='scheduleLuid' />
+    <field-sort-custom-order field='scheduleName' />
+    <field-sort-custom-order field='taskId' />
+    <field-sort-custom-order field='taskLuid' />
+    <field-sort-custom-order field='timeZone' />
+    <field-sort-custom-order field='bridgeClientComputerName' />
+    <field-sort-custom-order field='bridgeClientDeviceLuid' />
+    <field-sort-custom-order field='bridgeClientOwnerLuid' />
+    <field-sort-custom-order field='bridgeClientOwnerName' />
+    <field-sort-custom-order field='bridgeClientVersion' />
+    <field-sort-custom-order field='poolId' />
+    <field-sort-custom-order field='poolName' />
+    <field-sort-custom-order field='Calculation_1166713788613742607' />
+    <field-sort-custom-order field='Calculation_1396678843169206273' />
+    <field-sort-custom-order field='Obj Type (impute from args) (copy)_1166713787198435329' />
+    <field-sort-custom-order field='Geometry (generated)' />
+    <field-sort-custom-order field='Latitude (generated)' />
+    <field-sort-custom-order field='Longitude (generated)' />
+    <field-sort-custom-order field=':Measure Names' />
+    <field-sort-custom-order field='Multiple Values' />
+  </field-sort-info>
+  <object-graph>
+    <objects>
+      <object caption='Extract' id='Extract (Extract.Extract)_25AB57C936874646A9685790DD46DDB3'>
+        <properties context=''>
+          <relation connection='hyper.0s1f4sh0cctkxh1cxnamy06urh9p' name='Extract' table='[Extract].[Extract]' type='table' />
+        </properties>
+      </object>
+    </objects>
+  </object-graph>
+</datasource>

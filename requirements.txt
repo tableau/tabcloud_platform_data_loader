@@ -1,0 +1,4 @@
+# Dependencies are declared in pyproject.toml (single source of truth).
+# This file installs the project in editable mode with the S3 storage extra,
+# preserving `pip install -r requirements.txt` for existing workflows.
+-e .[s3]

@@ -1,0 +1,123 @@
+# mappings/transformer/vizql_http_request.yaml
+# Pipeline: vizql_http_request (View Interaction Events).
+# Records how users interact with published content — useful for monitoring
+# dashboard performance, data security, and user engagement.
+#
+# folder_pattern uses ** (globstar) to match the eventType directory at any depth.
+# ** matches zero or more path segments; * matches exactly one segment.
+# E.g. "**/eventType=vizql_http_request" finds files regardless of how many pod/site/
+# date segments precede the eventType directory in the extract tree.
+
+output_filename: "vizql_http_request"
+
+output:
+  format: "parquet"
+  target_path: ""
+  partition_by: []
+  schema:
+    # --- Common attributes (all site events) ---
+    - field: "eventTime"
+      type: "datetime"
+    - field: "eventProcessedTime"
+      type: "datetime"
+    - field: "eventType"
+      type: "string"
+    - field: "actorUserId"
+      type: "int64"
+    - field: "actorUserLuid"
+      type: "string"
+    - field: "eventOutcome"
+      type: "string"
+    - field: "eventOutcomeReason"
+      type: "string"
+    - field: "initiatingUserId"
+      type: "int64"
+    - field: "initiatingUserLuid"
+      type: "string"
+    - field: "licensingRoleName"
+      type: "string"
+    - field: "siteLuid"
+      type: "string"
+    - field: "siteRoleId"
+      type: "int64"
+    - field: "systemAdminLevel"
+      type: "int64"
+
+    # --- vizql_http_request attributes ---
+    - field: "duration"
+      type: "int64"
+    - field: "endpointName"
+      type: "string"
+    - field: "ipAddress"
+      type: "string"
+    - field: "method"
+      type: "string"
+    - field: "referrer"
+      type: "string"
+    - field: "requestId"
+      type: "string"
+    - field: "requestUri"
+      type: "string"
+    - field: "sessionId"
+      type: "string"
+    - field: "siteName"
+      type: "string"
+    - field: "siteUri"
+      type: "string"
+    - field: "userAgent"
+      type: "string"
+    - field: "viewLuid"
+      type: "string"
+    - field: "viewName"
+      type: "string"
+    - field: "viewRepoUrl"
+      type: "string"
+    - field: "vizqlSessionId"
+      type: "string"
+    - field: "workbookLuid"
+      type: "string"
+    - field: "workbookName"
+      type: "string"
+    - field: "workbookRevision"
+      type: "int64"
+
+inputs:
+  - eventType: "vizql_http_request"
+    source:
+      folder_pattern: "**/eventType=vizql_http_request"
+      file_pattern: "*.*"
+      recursive: true
+    mappings:
+      # Common attributes
+      eventTime: "eventTime"
+      eventProcessedTime: "eventProcessedTime"
+      eventType: $eventType
+      actorUserId: "actorUserId"
+      actorUserLuid: "actorUserLuid"
+      eventOutcome: "eventOutcome"
+      eventOutcomeReason: "eventOutcomeReason"
+      initiatingUserId: "initiatingUserId"
+      initiatingUserLuid: "initiatingUserLuid"
+      licensingRoleName: "licensingRoleName"
+      siteLuid: "siteLuid"
+      siteRoleId: "siteRoleId"
+      systemAdminLevel: "systemAdminLevel"
+      # vizql_http_request attributes
+      duration: "duration"
+      endpointName: "endpointName"
+      ipAddress: "ipAddress"
+      method: "method"
+      referrer: "referrer"
+      requestId: "requestId"
+      requestUri: "requestUri"
+      sessionId: "sessionId"
+      siteName: "siteName"
+      siteUri: "siteUri"
+      userAgent: "userAgent"
+      viewLuid: "viewLuid"
+      viewName: "viewName"
+      viewRepoUrl: "viewRepoUrl"
+      vizqlSessionId: "vizqlSessionId"
+      workbookLuid: "workbookLuid"
+      workbookName: "workbookName"
+      workbookRevision: "workbookRevision"

@@ -1,0 +1,18 @@
+# Integration-test transformer mapping: unified activity-log event table.
+#
+# Mirrors mappings/transformer/generic_activity_log_auto.yaml but writes to a
+# test-specific output filename so E2E test runs never collide with real output.
+output_filename: "test_activity_log"
+
+output:
+  format: "parquet"
+  target_path: ""
+  partition_by: []
+  schema: "auto"
+
+inputs:
+  - eventType: ""
+    source:
+      folder_pattern: "*"
+      file_pattern: "*.txt"
+      recursive: true

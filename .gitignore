@@ -1,0 +1,43 @@
+# Virtual environment
+.venv/
+
+# Local data storage — keep tenant data out of the repo
+# This covers the default storage path and any custom --storage-path directories
+platform_data/
+data_workspace/
+data_workspace_test/
+*.hyper
+*.parquet
+hyperd.log
+
+# Test-environment config (names a real tenant/sites). Only the .example is committed.
+config/config.test.ini
+config/config.ini
+
+# Storage backend YAML files (contain bucket names / credential refs).
+# Only the .example templates are committed.
+config/storage.yaml
+config/storage.*.yaml
+!config/storage.s3.example.yaml
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+
+# Secrets / credentials
+*.env
+.env*
+
+# IDE / editor
+.cursor/
+
+# OS
+.DS_Store
+Thumbs.db

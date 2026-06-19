@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------------------
+# Transformer mapping: tenant-wide reference data normalization
+#
+# Source: TCM REST API paginated JSON pages written by the extractor to:
+#   extract/reference/{entity}/pulled=<ISO8601>/page-*.json
+#
+# Output: one Parquet file per reference entity + a shared _manifest.json
+#   transform/reference/tenant_sites.parquet
+#   transform/reference/tenant_users.parquet
+#   transform/reference/_manifest.json   ← snapshot_time = pull timestamp
+#
+# Loader: these files are loaded as snapshot tables in the "reference" schema.
+#   See platform_data_bundle.yml for the tenant_users / tenant_sites table config.
+#
+# Routing: the pipeline dispatcher recognises reference_mode: true and calls
+# _run_reference_pipeline in transformer/pipeline.py, which processes ALL
+# entities listed in reference_entities in one pass.
+#
+# Join keys:
+#   ActivityLog.actorUserLuid  → tenant_users.userLuid   (+ siteLuid for site context)
+#   ActivityLog.siteLuid       → tenant_sites.siteLuid
+#
+# Entity-level normalization:
+#   tenant_sites: one row per site; siteLuid = alias of siteUUID.
+#   tenant_users: membership grain, one row per (userLuid x siteLuid) from
+#                 siteRoles[]; userLuid = alias of userId; siteLuid = alias of
+#                 siteId from siteRoles[]; linkRoles[] serialized as JSON string.
+#                 Users with empty siteRoles[] emit one row with null siteLuid.
+# ---------------------------------------------------------------------------
+
+reference_mode: true
+output_filename: tenant_reference
+output:
+  target_path: reference
+  format: parquet
+
+# All reference entities to normalize in this mapping pass.
+# Each entry has: name (entity name), items_key (top-level JSON key), table_name.
+reference_entities:
+  - name: tenant_sites
+    items_key: sites
+    table_name: tenant_sites
+
+  - name: tenant_users
+    items_key: users
+    table_name: tenant_users

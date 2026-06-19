@@ -1,0 +1,115 @@
+# mappings/transformer/template.yaml
+# Template mapping: unified pipeline with output schema and per-input source + mappings.
+# Copy and adapt output_filename, output, and inputs for your event types.
+#
+# ─── FOLDER PATTERN WILDCARDS ────────────────────────────────────────────────
+# folder_pattern locates event-type directories inside the extract storage tree.
+# The API nests files under multiple path segments (pod=, siteLuid=, date, hour)
+# before the eventType= directory. Two wildcards are supported:
+#
+#   *   matches exactly one path segment (no slashes).
+#   **  (globstar) matches zero or more path segments at any depth.
+#
+# Recommended patterns:
+#   "**/eventType=Login"
+#       Matches eventType=Login at any depth — simplest and most portable.
+#
+#   "pod=10az/**/eventType=Login"
+#       Restrict to a specific pod; Login can appear at any sub-depth within it.
+#
+#   "pod=*/siteLuid=abc123/**/eventType=Login"
+#       Restrict to a specific site across all pods.
+#
+# Bare single-segment patterns (no slashes, no wildcards) are automatically
+# treated as **/segment, so "eventType=Login" and "**/eventType=Login" are
+# equivalent. Explicit ** is recommended for clarity.
+#
+# ─── SCHEMA MODES ────────────────────────────────────────────────────────────
+# Two schema modes are available:
+#
+# 1. EXPLICIT SCHEMA (default): You define output.schema as a list of fields
+#    with types, and provide per-input mappings (output field → JSON path).
+#    Use this when you need specific field names, type coercion (int64,
+#    timestamp, etc.), or when renaming/combining fields across event types.
+#
+# 2. AUTO SCHEMA (schema: auto): The pipeline samples the first file of each
+#    input (up to sample_size records, default 100) to discover all JSON field
+#    names. A superset schema is built with all discovered fields typed as
+#    "string". All records are then mapped by field name automatically.
+#    No mappings block is needed on any input.
+#    Use this for quick exploration or when unioning many event types without
+#    caring about type precision. Works for both Parquet and CSV output.
+#    Note: all values are written as strings in auto mode.
+
+output_filename: "unified_event_logs"
+
+# ─── EXAMPLE 1: Explicit schema ──────────────────────────────────────────────
+# Define the final structure of your output file (Parquet or CSV).
+output:
+  format: "parquet"   # or "csv"
+  # Relative to storage transform base, or leave empty for default transform/ dir.
+  target_path: ""
+  partition_by: []    # e.g. ["event_date"] if that column exists in schema/mappings
+  # Master schema that all inputs are mapped into.
+  schema:
+    - field: "event_id"
+      type: "string"
+    - field: "event_timestamp"
+      type: "timestamp"
+    - field: "event_type"
+      type: "string"
+    - field: "user_identifier"
+      type: "string"
+    - field: "status"
+      type: "string"
+
+# Per-input definitions. Each input maps one event type's JSON fields into the
+# master schema above. Use "$eventType" to inject the event type name as a literal.
+inputs:
+  - eventType: "Login"
+    source:
+      folder_pattern: "**/eventType=Login"
+      file_pattern: "*.*"
+      recursive: true
+    mappings:
+      event_id: "uuid"
+      event_timestamp: "timestamp"
+      event_type: "$eventType"
+      user_identifier: "userId"
+      status: "type"
+
+  - eventType: "View"
+    source:
+      folder_pattern: "**/eventType=View"
+      file_pattern: "*.*"
+      recursive: true
+    mappings:
+      event_id: "id"
+      event_timestamp: "eventTime"
+      event_type: "$eventType"
+      user_identifier: "actorId"
+      status: "eventType"
+
+# ─── EXAMPLE 2: Auto schema ──────────────────────────────────────────────────
+# Uncomment the block below (and comment out Example 1) to use auto schema.
+# The pipeline samples the first file of each input to discover all field names.
+# All fields are written as strings. No schema list or mappings block needed.
+#
+# output_filename: "all_events_auto"
+# output:
+#   format: "csv"           # parquet is also supported
+#   schema: auto
+#   sample_size: 100        # optional; records to sample per input (default 100)
+#   target_path: ""
+#   partition_by: []
+#
+# inputs:
+#   - eventType: "background_job"
+#     source:
+#       folder_pattern: "**/eventType=background_job"
+#       file_pattern: "*.*"
+#
+#   - eventType: "bridge_job"
+#     source:
+#       folder_pattern: "**/eventType=bridge_job"
+#       file_pattern: "*.*"

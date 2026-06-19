@@ -1,0 +1,26 @@
+# Integration-test transformer mapping: entity snapshot passthrough.
+#
+# Mirrors mappings/transformer/entity_snapshot_auto.yaml.
+#
+# For each entity type, the pipeline selects each site's latest snapshot hour,
+# unions ALL sites' latest-hour part files, adds a "siteLuid" column identifying
+# the source site, and writes one {entityType}.parquet + a _manifest.json sidecar
+# under {transform_dir}/snapshots/.  See the production mapping for full details.
+output_filename: "test_entity_snapshot"
+
+partition_field: entityType
+select: latest_per_partition
+passthrough: true
+split_by: entityType
+
+output:
+  format: parquet
+  target_path: "snapshots"
+  schema: auto
+
+inputs:
+  - entityType: ""
+    source:
+      folder_pattern: "*"
+      file_pattern: "*.parquet"
+      recursive: true

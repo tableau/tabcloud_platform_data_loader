@@ -1,0 +1,20 @@
+# Generic event-type agnostic pipeline.
+# - Discovers files from all eventType directories.
+# - Auto-discovers output fields by sampling one record per event type.
+# - Produces a wide nullable output with safe auto typing:
+#   - datetime for fields whose sampled values are ISO-8601 timestamps
+#   - string for all other fields
+output_filename: "generic_activity_log_auto"
+
+output:
+  format: "parquet"
+  target_path: ""
+  partition_by: []
+  schema: "auto"
+
+inputs:
+  - eventType: ""
+    source:
+      folder_pattern: "*"
+      file_pattern: "*.txt"
+      recursive: true

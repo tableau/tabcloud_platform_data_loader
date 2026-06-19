@@ -1,0 +1,82 @@
+# mappings/transformer/audit_events.yaml
+# Unified pipeline: union of Login, View, Download, Logout into one Parquet table.
+#
+# folder_pattern options:
+#   "eventType=Login"          - bare segment; automatically treated as **/eventType=Login,
+#                                matching that directory at any depth in the extract tree.
+#   "**/eventType=Login"       - explicit globstar form (equivalent, more transparent).
+#   "pod=10az/**/eventType=Login" - restrict to a specific pod, Login at any sub-depth.
+# ** matches zero or more path segments; * matches exactly one segment.
+
+output_filename: "audit_events"
+
+output:
+  format: "parquet"
+  target_path: ""
+  partition_by: []
+  schema:
+    - field: "event_time"
+      type: "datetime"
+    - field: "event_type"
+      type: "string"
+    - field: "user_id"
+      type: "string"
+    - field: "site_id"
+      type: "string"
+    - field: "resource_type"
+      type: "string"
+    - field: "resource_id"
+      type: "string"
+
+inputs:
+  - eventType: "Login"
+    source:
+      folder_pattern: "eventType=Login"
+      file_pattern: "*.*"
+      recursive: true
+    mappings:
+      event_time: "timestamp"
+      event_type: "type"
+      user_id: "userId"
+      site_id: "siteId"
+      resource_type: ""
+      resource_id: ""
+
+  - eventType: "View"
+    source:
+      folder_pattern: "eventType=View"
+      file_pattern: "*.*"
+      recursive: true
+    mappings:
+      event_time: "eventTime"
+      event_type: "eventType"
+      user_id: "actorId"
+      site_id: "siteId"
+      resource_type: "resourceType"
+      resource_id: "resourceId"
+
+  - eventType: "Download"
+    source:
+      folder_pattern: "eventType=Download"
+      file_pattern: "*.*"
+      recursive: true
+    mappings:
+      event_time: "created_at"
+      event_type: "eventType"
+      user_id: "user_id"
+      site_id: "site_id"
+      resource_type: "resourceType"
+      resource_id: "resource_id"
+
+  - eventType: "Logout"
+    source:
+      folder_pattern: "eventType=Logout"
+      file_pattern: "*.*"
+      recursive: true
+    mappings:
+      event_time: "timestamp"
+      event_type: "type"
+      user_id: "userId"
+      site_id: "siteId"
+      resource_type: ""
+      resource_id: ""

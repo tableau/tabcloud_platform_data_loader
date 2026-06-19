@@ -1,0 +1,288 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# run.yml — tabcloud-run pipeline configuration
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# SCHEDULING IS EXTERNAL.  This file defines WHAT runs (one pipeline per
+# invocation).  Use cron, launchd, Airflow, or similar to invoke
+#   tabcloud-run -c config/run.yml
+# on whatever cadence you need (e.g. hourly, daily).
+#
+# BLOCK-PRESENCE RULES:
+#   absent block    → runner synthesizes documented defaults (see each section).
+#   present + entries → exactly what you wrote; you own the set.
+#   present + empty   → treated as absent with a warning.
+#
+# MULTI-TENANT GROWTH PATH:
+#   connection: is singular today (one TCM tenant per run-file).  A future
+#   release will promote this to an optional connections: named map so you can
+#   specify a per-extraction-job connection for cross-tenant consolidation.
+#   The singular form will remain valid as shorthand for the single-connection
+#   default.  In the meantime, use one run.yml per tenant.
+#
+# SECRETS:
+#   Use secret references — never paste secrets directly into this file.
+#   Supported schemes:
+#     keyring:SERVICE/USERNAME   OS keychain (recommended)
+#     env:VAR_NAME               Environment variable
+#     file:/path/to/secret       File contents (newline stripped)
+#     awssm:SECRET_ID#JSON_KEY   AWS Secrets Manager
+#     plain:LITERAL              Explicit value (testing only)
+#
+#   Store your PAT once:
+#     pip install -e ".[secrets]"
+#     tabcloud-secrets set tabcloud extractor-pat   # prompts; nothing echoed
+#     tabcloud-secrets doctor                        # verify keyring backend
+#
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: 1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# connection (REQUIRED)
+# ─────────────────────────────────────────────────────────────────────────────
+# Tableau Cloud Manager (TCM) authentication for all extraction jobs.
+# The tcm_url is the base URL for your tenant — the same domain you use to
+# log in to Tableau Cloud Manager.  It is NOT the Tableau site URL (that goes
+# in destinations.<name>.server_url if you're publishing).
+
+connection:
+  tcm_url:      https://your-tenant.online.tableau.com   # required
+  token_name:   your-pat-name                            # required
+  token_secret: keyring:tabcloud/extractor-pat           # required; use a secret_ref
+
+# ─────────────────────────────────────────────────────────────────────────────
+# extraction (optional — defaults to 3 standard jobs when absent)
+# ─────────────────────────────────────────────────────────────────────────────
+# Named map of extraction jobs.  Each job specifies a data type and its
+# settings.  You can define as many jobs as you need; they all run before the
+# transform phase begins (fan-out + halt-at-barrier semantics).
+#
+# If this block is absent the runner synthesizes:
+#   event_logs:  { data: event_logs }
+#   snapshots:   { data: snapshots }
+#   reference:   { data: reference }
+
+extraction:
+
+  # ── Event logs ─────────────────────────────────────────────────────────────
+  # Activity-log events from site-scoped Platform Data API endpoints.
+  event_logs:
+    data: event_logs
+
+    # scope: "site" pulls site-level events (default).
+    #        "tenant" pulls Tableau Cloud Manager admin events (TCM UI actions
+    #        only — these are NOT site events and do NOT roll up from sites).
+    scope: site
+
+    # sites: which sites to pull from.
+    #   "all"         → all active sites in the tenant (default).
+    #   ["site1"]     → explicit list of site contentUrl values (e.g. "acme").
+    #   "none"        → skip site-scoped retrieval (useful for tenant-only runs).
+    sites: all
+
+    # Time window.  When both are set they are used as-is (fixed window).
+    # When absent, a rolling lookback_days window ending now is used.
+    # Format: ISO 8601 with timezone, e.g.:
+    #   start_time: "2026-06-01T00:00:00Z"
+    #   end_time:   "2026-06-02T00:00:00Z"
+    # start_time: ""
+    # end_time: ""
+
+    # lookback_days: how many days back from now to start when start/end are absent.
+    lookback_days: 2
+
+    # event_types: filter to specific event types (leave empty for all).
+    # See https://help.tableau.com/current/api/rest_api/en-us/REST/rest_api_ref_activity_log.htm
+    # for the canonical list.
+    # event_types: []
+    # event_types:
+    #   - signin_event
+    #   - datasource_access_event
+
+  # ── Snapshots ──────────────────────────────────────────────────────────────
+  # Entity snapshots (users, workbooks, datasources, etc.) from TCM Parquet API.
+  snapshots:
+    data: snapshots
+
+    sites: all
+
+    # entity_types: restrict to specific entity types (empty = all available).
+    # entity_types:
+    #   - users
+    #   - workbooks
+    #   - datasources
+
+    # selection: "latest" = only the newest snapshot per cadence window (default).
+    #            "all"    = every snapshot within the lookback window.
+    selection: latest
+
+    # cadence: granularity of the snapshot cadence.
+    #   "hourly" (default) — snapshots are generated hourly by Tableau Cloud.
+    #   "daily"            — use when hourly is too granular for your use case.
+    # The cadence is important because the extractor aligns the lookback window
+    # to cadence boundaries: a 4-interval hourly lookback covers the last 4 hours;
+    # a 4-interval daily lookback covers the last 4 days.
+    cadence: hourly
+
+    # lookback_intervals: how many cadence intervals back to look.
+    # For hourly: 4 = last 4 hours.  For daily: 4 = last 4 days.
+    # Increase if you need more history (e.g. to catch up after an outage).
+    lookback_intervals: 4
+
+    # gap_action: what to do when a cadence slot has no snapshot.
+    #   "warn"   (default) — log a warning and continue.
+    #   "error"  — abort if any slot is missing.
+    #   "ignore" — silently skip missing slots.
+    gap_action: warn
+
+  # ── Reference data ─────────────────────────────────────────────────────────
+  # Tenant-wide reference lists from the TCM REST API (not the Platform Data API).
+  # These are pulled once per run and written to {storage_path}/extract/reference/.
+  reference:
+    data: reference
+
+    # entities: which reference entities to pull.
+    #   "tenant_sites"  → all sites in the tenant
+    #   "tenant_users"  → all users across all sites (cross-site user+role grain)
+    entities:
+      - tenant_sites
+      - tenant_users
+
+    # Reference data has no time window — it is always a current snapshot.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# transform (optional — defaults to 3 standard auto-schema transformers)
+# ─────────────────────────────────────────────────────────────────────────────
+# Named map of transformer jobs.  Each job points to a transformer mapping YAML.
+# All transform jobs run after the extraction barrier (fan-out).
+#
+# Default when absent:
+#   events:           { mapping: mappings/transformer/generic_activity_log_auto.yaml }
+#   entity_snapshots: { mapping: mappings/transformer/entity_snapshot_auto.yaml }
+#   tenant_reference: { mapping: mappings/transformer/tenant_reference_auto.yaml }
+
+transform:
+  events:
+    mapping: mappings/transformer/generic_activity_log_auto.yaml
+
+  entity_snapshots:
+    mapping: mappings/transformer/entity_snapshot_auto.yaml
+
+  tenant_reference:
+    mapping: mappings/transformer/tenant_reference_auto.yaml
+
+  # Add more transformer mappings here for custom schemas, CSV output, etc.
+  # Each mapping file is independent; outputs do not interfere.
+  # Example:
+  # login_analytics:
+  #   mapping: mappings/transformer/login_analytics.yaml
+
+# ─────────────────────────────────────────────────────────────────────────────
+# load (optional — defaults to a single local .hyper loader)
+# ─────────────────────────────────────────────────────────────────────────────
+# Named map of loader jobs.  Each job loads transformed data into a target.
+# All load jobs run after the transform barrier (fan-out).
+#
+# Default when absent:
+#   default: { mapping: mappings/loader/platform_data_bundle.yml }
+#             (local .hyper only — no Tableau publish)
+#
+# Publishing is DESTINATION-DRIVEN: set `destination` to a name from the
+# `destinations:` map below.  If `destination` is absent or null, the loader
+# writes the .hyper file locally and does NOT attempt to publish to Tableau.
+
+load:
+  default:
+    mapping: mappings/loader/platform_data_bundle.yml
+
+    # destination: name of a destinations entry to publish to Tableau.
+    # Comment out or set to null for local .hyper only (no network calls).
+    # destination: tableau_prod
+
+    # name: published data source name on Tableau Server/Cloud.
+    # name: "Platform Data Bundle"
+
+    # description: description shown in Tableau's datasource catalog.
+    # description: "Activity logs + entity snapshots, all sites"
+
+  # You can define multiple loaders for fan-out:
+  # login_analytics:
+  #   mapping: mappings/loader/login_analytics.yml
+  #   destination: tableau_prod
+  #   name: "Login Analytics"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# destinations (optional — required only when any load job sets destination:)
+# ─────────────────────────────────────────────────────────────────────────────
+# Named map of Tableau publish targets.  A loader publishes ONLY when its
+# `destination:` field names one of these entries.  No destination in a
+# load job → local .hyper only (safe default; no credentials needed).
+#
+# The server_url here is the Tableau Cloud/Server POD base URL — it is the
+# URL you use to log in to Tableau, NOT the TCM tcm_url above.
+# Example:  https://10ax.online.tableau.com  (POD hostname differs from TCM)
+
+# destinations:
+#   tableau_prod:
+#     type: tableau
+#     server_url:   https://your-pod.online.tableau.com    # required; base URL only, no path/fragment
+#     token_name:   your-tableau-pat-name                  # required
+#     token_secret: keyring:tabcloud/publish-pat           # required; use a secret_ref
+#                                                          # Store: tabcloud-secrets set tabcloud publish-pat
+#     site:    your-site-content-url   # site contentUrl (empty string = default site)
+#     project: Admin Insights          # project name or path; nested: "Parent/Child"
+#     mode: upsert
+#     #   "upsert"       (default) — PATCH existing datasource; falls back to full
+#     #                    publish if not found. Best for scheduled/unattended runs.
+#     #   "hyper_update" — PATCH underlying data only (live-to-Hyper connection).
+#     #                    No fallback on subsequent runs if datasource not found.
+#     #   "overwrite"    — Full POST publish every run. Simple but slow for large datasets.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# storage (optional — defaults to local backend at ./data_workspace)
+# ─────────────────────────────────────────────────────────────────────────────
+
+storage:
+  backend: local          # "local" (default) | "s3" (experimental)
+  path: ./data_workspace  # local artifact root; relative to this file's directory
+
+  # ── S3 backend (experimental) ─────────────────────────────────────────────
+  # Uncomment and fill in when backend: s3.  See config/storage.s3.example.yaml
+  # for a standalone S3 storage config (passable to individual components via
+  # --storage-config if you prefer not to use run.yml for storage).
+  #
+  # WARNING: S3 storage is experimental. Known limitation: temporary/STS
+  # credentials (keys with an ASIA* prefix) require a session token that the
+  # 'static' provider does not yet support — use aws_default_chain or
+  # aws_profile instead.
+  #
+  # s3:
+  #   bucket: your-s3-bucket-name
+  #   prefix: tabcloud/             # key prefix; trailing slash recommended
+  #   region: us-east-1             # omit to use boto3 default
+  #   endpoint_url: ""              # for S3-compatible stores (MinIO, etc.)
+  #   credentials:
+  #     provider: aws_default_chain  # recommended for EC2/ECS/Lambda/CI
+  #     # OR static (local dev with explicit keys):
+  #     # provider: static
+  #     # access_key: keyring:tabcloud/aws-access-key
+  #     # secret_key: keyring:tabcloud/aws-secret-key
+  #     # OR named profile:
+  #     # provider: aws_profile
+  #     # profile: your-aws-profile
+  #     # OR Secrets Manager:
+  #     # provider: aws_secrets_manager
+  #     # secrets_manager:
+  #     #   secret_id: my/s3/credentials
+  #     #   key_map:
+  #     #     access_key: AWS_ACCESS_KEY_ID
+  #     #     secret_key: AWS_SECRET_ACCESS_KEY
+
+# ─────────────────────────────────────────────────────────────────────────────
+# logging (optional)
+# ─────────────────────────────────────────────────────────────────────────────
+
+logging:
+  level: INFO               # DEBUG | INFO | WARNING | ERROR
+  # dir: ""                 # log directory; defaults to {storage.path}/logs
+  retention_days: 60        # delete log files older than this many days

@@ -1,0 +1,51 @@
+# run.test.yml.example — Integration test configuration for tabcloud-run.
+#
+# Copy to config/run.test.yml and fill in your test tenant credentials.
+# config/run.test.yml is gitignored; this .example file is committed.
+#
+# Usage:
+#   cp config/run.test.yml.example config/run.test.yml
+#   # Edit run.test.yml with your test tenant values
+#   tabcloud-secrets set tabcloud-test extractor-pat      # store TCM PAT
+#   tabcloud-secrets set tabcloud-test publish-pat        # store Tableau PAT (optional)
+#   TABCLOUD_TEST_CONFIG=config/run.test.yml pytest -m integration
+
+version: 1
+
+connection:
+  tcm_url:      https://your-test-tenant.online.tableau.com
+  token_name:   your-test-pat-name
+  token_secret: keyring:tabcloud-test/extractor-pat
+
+storage:
+  backend: local
+  path: ./data_workspace_test
+
+logging:
+  level: DEBUG
+  retention_days: 7
+
+# extraction, transform, and load blocks are absent → defaults are used.
+# Customize below if your test tenant needs specific scope/sites/entities.
+
+# extraction:
+#   event_logs:
+#     data: event_logs
+#     scope: site
+#     sites: all
+#     lookback_days: 1
+#   snapshots:
+#     data: snapshots
+#     lookback_intervals: 2
+#   reference:
+#     data: reference
+
+# destinations:
+#   tableau_test:
+#     type: tableau
+#     server_url:   https://your-test-pod.online.tableau.com
+#     token_name:   your-test-tableau-pat-name
+#     token_secret: keyring:tabcloud-test/publish-pat
+#     site:    your-test-site
+#     project: Admin Insights Test
+#     mode: upsert

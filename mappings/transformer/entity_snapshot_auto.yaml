@@ -1,0 +1,89 @@
+# Entity snapshot transformer mapping — multi-site union passthrough mode.
+#
+# This mapping uses passthrough: true (see below), which activates the snapshot
+# union pipeline.  For each entity type, it:
+#
+#   1. Groups all extracted snapshot Parquet files by entity type and site (siteLuid).
+#   2. For each site, selects the files from the latest snapshot hour (newest y/m/d/h).
+#   3. Unions the latest-hour files across ALL sites into one {entityType}.parquet file.
+#   4. Adds a "siteLuid" column to every row identifying the source site.
+#   5. Writes a _manifest.json sidecar whose snapshot_time is the maximum snapshot
+#      timestamp across all included sites (drives the loader's replace-on-new watermark).
+#
+# Output files:
+#   - One {entityType}.parquet per entity type (e.g. users.parquet, workbooks.parquet)
+#     written to {storage_path}/transform/snapshots/.  Each file includes ALL sites' latest
+#     rows plus the "siteLuid" column.
+#   - A _manifest.json sidecar alongside those files.
+#
+# Note on "passthrough: true":
+#   The name is historical.  When passthrough is true the transformer no longer byte-copies
+#   files; instead it runs the multi-site union pipeline described above. The schema of each
+#   output file therefore matches the source plus the added "siteLuid" column.
+#
+# Note on "select: latest_per_partition":
+#   Combined with siteLuid partitioning in the pipeline, this means "latest snapshot per
+#   site, per entity type".  Files from older hours for any given site are excluded; only
+#   the newest hour's part files are included in the union.
+#
+# To use this mapping in a run:
+#   python -m transformer \
+#     --mapping mappings/transformer/generic_activity_log_auto.yaml \
+#     --mapping mappings/transformer/entity_snapshot_auto.yaml
+#
+# Or via the runner (set mappings.transformer_mappings to both paths).
+
+output_filename: "entity_snapshot_auto"
+
+# Partition field: the path segment key that identifies each entity type.
+partition_field: entityType
+
+# File selection: for each (site, entity type) pair, select the part files from
+# the most recent snapshot hour (newest y/m/d/h directory).  Part files from
+# earlier hours for any site are excluded.  Across sites, every site's latest
+# hour is always included so multi-site installs capture all sites.
+select: latest_per_partition
+
+# Passthrough: activates the snapshot union pipeline (see header comment above).
+# When true, the transformer reads the raw site-partitioned Parquet files, unions
+# all sites' latest-hour data for each entity type, injects a "siteLuid" column,
+# and writes a combined per-entity Parquet file.
+# A _manifest.json sidecar is written alongside the output files.
+passthrough: true
+
+# Split output by entity type: one file per entityType value.
+split_by: entityType
+
+output:
+  format: parquet
+  # Output is written to {transform_dir}/snapshots/ (one file per entity type).
+  # Each output Parquet contains the unioned latest rows from all sites plus a
+  # "siteLuid" column added by the union pipeline.
+  target_path: "snapshots"
+  schema: auto  # schema is inferred from the source Parquet files + siteLuid column
+
+inputs:
+  - entityType: ""
+    source:
+      # Match all entityType= directories at any depth in the extract tree.
+      folder_pattern: "*"
+      file_pattern: "*.parquet"
+      recursive: true
+
+# ---------------------------------------------------------------------------
+# Future SCD / Type-2 history (not yet implemented)
+# ---------------------------------------------------------------------------
+#
+# To union all historical snapshots of the same entity into a slowly-changing-
+# dimension table, change:
+#
+#   select: all_snapshots    # (reserved; see reader.select_files_for_mapping)
+#   passthrough: false       # Parquet re-parsing needed for effective-dating
+#   snapshot_time_field: snapshotTimestamp  # inject timestamp column
+#
+# Then add dedup-by-key and effective_from / effective_to logic in the transformer
+# pipeline (transformer/reader.py select_files_for_mapping stub). The retain-all
+# extractor mode (snapshot_selection = all) must be enabled to keep historical
+# snapshots on disk.
+#
+# See: docs/architecture.md — "SCD / history (future)"

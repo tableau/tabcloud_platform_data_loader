@@ -1,0 +1,88 @@
+# Login-analytics loader mapping: login_analytics pipeline -> Hyper file,
+# optional Tableau publish.
+#
+# Run (existing Parquet in transform/):
+#   python -m loader --storage-path ./data_workspace --loader-mapping mappings/loader/login_hyper.yaml
+#
+# Run with upstream (extractor + transformer then write to .hyper). TCM URL and PAT are required:
+#   python -m loader --storage-path ./data_workspace --loader-mapping mappings/loader/login_hyper.yaml \
+#     --ensure-upstream --pat-name YOUR_TCM_PAT_NAME --pat-secret YOUR_TCM_PAT_SECRET \
+#     --api-url https://tcm.example.com --start-time 2025-01-01T00:00:00Z --end-time 2025-01-31T23:59:59Z
+#
+# Tableau publish: set target.publish below or pass --tableau-server-url, --tableau-token-name,
+# --tableau-token-secret, etc. Not needed when the target is just the .hyper file in storage.
+
+load_name: "login_analytics"
+
+# ─── TARGET ─────────────────────────────────────────────────────────────────
+target:
+  type: "hyper"         # Only supported value: "hyper"
+  hyper_path: "{storage_path}/loader/login_analytics.hyper"
+  #   {storage_path} is substituted with the --storage-path CLI argument at runtime.
+  #   Use an absolute path if preferred (e.g. /Users/me/data/my_data.hyper).
+
+  # Tableau Server/Cloud publish settings (optional). Remove or leave empty to skip publish.
+  # Auth via Personal Access Token (PAT): token_name + token_secret.
+  # publish:
+  #   server_url: "https://your-site.online.tableau.com"   # required for publish
+  #   token_name: "your-tableau-pat-name"
+  #   token_secret: "your-tableau-pat-secret"
+  #   name: "Login Analytics"            # Published data source name (alias: datasource_name)
+  #   description: "Login event data from the Platform Data API"
+  #   site: "your-site"                  # Site contentUrl (empty string = default site)
+  #   project: "Analytics/Logs"          # Destination project path. Use "/" for nesting,
+  #                                      # e.g. "Parent/Child". Missing segments are created.
+  #   tds_path: ""                       # Optional .tds wrapper; leave blank to publish .hyper directly.
+  #   mode: "upsert"
+  #   # How Tableau is updated after the local Hyper file is written. Independent of write_mode.
+  #   # "upsert"       (default) — PATCH existing datasource data if found; falls back to full
+  #   #                  publish automatically if datasource not found or PATCH fails.
+  #   #                  Best for scheduled/unattended runs.
+  #   # "hyper_update" — PATCH the underlying data only (requires a live-to-Hyper connection).
+  #   #                  First run falls back to full publish automatically. Fails on subsequent
+  #   #                  runs if the datasource is not found (no fallback).
+  #   # "overwrite"    — Full POST publish replacing the entire datasource every run.
+  #   #                  Simple but slow for large datasets; always drops and recreates.
+
+# ─── TABLES ──────────────────────────────────────────────────────────────────
+# Each table must specify exactly one data source (mutually exclusive):
+#   transformer_mappings: list of transformer mapping YAML paths whose pipeline output
+#                         (a .parquet file named by output_filename) feeds this table.
+#   source_file_path:     directory path (absolute, or relative to cwd; may use {storage_path})
+#                         containing CSV and/or Parquet files to union into this table.
+#
+# write_mode controls both the data strategy and what happens when the schema changes:
+#   "replace"        — Rewrite all rows every run. Schema may change freely.
+#   "strict_replace" — Rewrite all rows every run. ERROR if columns added/removed/retyped.
+#   "append"         — Insert rows where increment_field > last loaded max. On schema change,
+#                      auto-rebuild this table (drop + full replace). Requires increment_field.
+#   "strict_append"  — Same incremental append, but ERROR if schema changed. Requires increment_field.
+#   "snapshot"       — Replace this table only when a newer snapshot arrives (watermark check).
+#                      Schema may change freely. Requires snapshot_source_dir.
+#   "strict_snapshot"— Same snapshot gating, but ERROR if schema changed. Requires snapshot_source_dir.
+#                      The watermark is NOT advanced on error so the next run retries.
+
+tables:
+  - table: "login_analytics"
+    schema: "Extract"         # Hyper schema name. "Extract" is the default Tableau schema.
+    transformer_mappings:
+      - "mappings/transformer/login_analytics.yaml"
+    write_mode: "append"      # Insert rows where increment_field > last loaded max.
+                              # Schema drift triggers auto-rebuild (use strict_append to ERROR instead).
+    increment_field: "eventTime"
+    #   Required for append/strict_append. Column used as incremental high-water mark.
+    #   New rows are those where increment_field > the maximum value written in the last run.
+
+  # Example: table from a directory of files (no transformer pipeline needed).
+  # Exactly one of transformer_mappings or source_file_path is required per table.
+  # - table: "ExternalData"
+  #   schema: "Extract"
+  #   source_file_path: "{storage_path}/external/csv_input"   # or absolute path
+  #   write_mode: "replace"
+
+# Optional: extractor defaults when using --ensure-upstream (or pass via CLI).
+# upstream:
+#   extractor:
+#     start_time: "2025-01-01T00:00:00Z"
+#     end_time: "2025-01-31T23:59:59Z"
+#     site_ids: "All"

@@ -1,0 +1,258 @@
+# ============================================================================
+# Loader Mapping Template — copy and adapt this file for each new data source.
+#
+# This file documents EVERY attribute and EVERY valid value inline so you can
+# configure a loader mapping without leaving this file.
+#
+# Quick start:
+#   1. Copy this file: cp mappings/loader/template.yml mappings/loader/my_source.yml
+#   2. Fill in the required fields (marked with ← REQUIRED).
+#   3. Delete example sections you don't need.
+#   4. Run: python -m loader --storage-path ./data_workspace \
+#              --loader-mapping mappings/loader/my_source.yml
+#
+# ============================================================================
+
+# load_name (optional, string): human-readable name shown in logs and run summaries.
+load_name: "my_data_source"
+
+# ════════════════════════════════════════════════════════════════════════════
+# TARGET — where the loader writes data
+# ════════════════════════════════════════════════════════════════════════════
+target:
+  # type (required, string): only "hyper" is supported.
+  type: "hyper"
+
+  # hyper_path (required, string): path to the .hyper file the loader writes.
+  #   {storage_path} is substituted with the --storage-path CLI argument at runtime.
+  #   Use an absolute path if you prefer not to rely on {storage_path}.
+  #   Examples:
+  #     "{storage_path}/loader/my_data.hyper"    ← recommended
+  #     "/Users/me/data/my_data.hyper"           ← absolute (always resolves correctly)
+  hyper_path: "{storage_path}/loader/my_data_source.hyper"  # ← REQUIRED
+
+  # publish (optional block): publish the .hyper file to Tableau Server/Cloud after writing.
+  #   Remove this block entirely to skip publishing and write only to local storage.
+  #   All auth via Personal Access Token (PAT).
+  publish:
+    # server_url (required for publish, string): your Tableau Server or Tableau Cloud URL.
+    #   Examples:
+    #     "https://your-site.online.tableau.com"   ← Tableau Cloud (Tableau+/Enterprise)
+    #     "https://tableau.corp.example.com"       ← Tableau Server (on-prem)
+    server_url: "https://your-site.online.tableau.com"  # ← REQUIRED for publish
+
+    # token_name (required for publish, string): name of the Personal Access Token.
+    #   Can also be set via --tableau-token-name CLI flag or the TABLEAU_TOKEN_NAME env var.
+    token_name: "your-tableau-pat-name"  # ← REQUIRED for publish
+
+    # token_secret (required for publish, string): PAT secret value OR a secret reference.
+    #   Accepts any of the following secure reference schemes (NO plaintext in this file!):
+    #
+    #   keyring:SERVICE/USERNAME   OS keychain — RECOMMENDED for local development.
+    #     How to set up:
+    #       1.  pip install -e .[secrets]
+    #       2.  tabcloud-secrets set tabcloud publish-pat
+    #           (you'll be prompted; nothing is echoed to the terminal)
+    #       3.  tabcloud-secrets doctor   (verify the backend is working)
+    #       Use: token_secret: "keyring:tabcloud/publish-pat"
+    #
+    #   env:VAR_NAME               Read from an environment variable.
+    #     Example: token_secret: "env:TABCLOUD_PUBLISH_PAT"
+    #     Then:   export TABCLOUD_PUBLISH_PAT=your-secret
+    #
+    #   file:/path/to/secret       Read from a file (strip trailing newline).
+    #     Example: token_secret: "file:/run/secrets/tableau_pat"
+    #     chmod 600 the file — only the owner should be able to read it.
+    #
+    #   awssm:SECRET_ID#JSON_KEY   AWS Secrets Manager (needs .[s3] extra installed).
+    #     Example: token_secret: "awssm:tabcloud/tableau#PUBLISH_PAT"
+    #
+    #   plain:LITERAL              Explicit literal (same as a bare value; for quick testing only).
+    #     Example: token_secret: "plain:your-secret"
+    #
+    #   Can also be set/overridden at runtime via --tableau-token-secret-ref CLI flag.
+    token_secret: "keyring:tabcloud/publish-pat"  # ← REQUIRED for publish
+
+    # name (required for publish, string): published data source name on Tableau Server.
+    #   Alias: datasource_name (either key is accepted).
+    #   The data source is matched by this name when PATCHing existing data.
+    name: "My Data Source"  # ← REQUIRED for publish
+
+    # description (optional, string): data source description shown in Tableau.
+    description: "Description of this data source"
+
+    # site (optional, string): site contentUrl on Tableau Server/Cloud.
+    #   Use the site name from the URL (e.g. "mysitename" from .../site/mysitename/...).
+    #   Empty string "" or omitting this key targets the default site.
+    site: "your-site"
+
+    # project (optional, string): destination project path on Tableau.
+    #   Use "/" to separate levels, e.g. "Admin/Insights".
+    #   If the project does not exist, it is created automatically.
+    #   Leave blank or omit to publish to the top-level (default) project.
+    project: "Admin Insights"
+
+    # tds_path (optional, string): path to a .tds file to wrap around the .hyper.
+    #   When set, a .tdsx is built (tds + hyper) and published instead of the bare .hyper.
+    #   Leave blank to publish the .hyper file directly (recommended unless you need a
+    #   pre-built calculated field, parameter, or custom palette).
+    tds_path: ""
+
+    # mode (optional, string): how Tableau is updated after writing the local .hyper file.
+    #   Independent of per-table write_mode (which controls local data strategy).
+    #   Valid values:
+    #   "upsert"       (default) — PATCH existing datasource data if found; falls back to a
+    #                    full publish automatically if the datasource is not found or the PATCH
+    #                    fails. Best choice for scheduled / unattended runs.
+    #   "hyper_update" — PATCH the underlying data only. Requires the datasource to already
+    #                    exist with a live-to-Hyper connection on the server. The first run
+    #                    falls back to full publish automatically. On subsequent runs, fails
+    #                    if the datasource is not found (no fallback).
+    #   "overwrite"    — Full POST publish replacing the entire datasource every run.
+    #                    Simple but slow for large datasets; always drops and recreates.
+    mode: "upsert"
+
+# ════════════════════════════════════════════════════════════════════════════
+# TABLES — what data goes into the .hyper file and how it is written
+# ════════════════════════════════════════════════════════════════════════════
+# Each entry defines one table in the .hyper file.
+# Multiple tables can coexist in a single .hyper (different names/schemas are fine).
+#
+# Per-table DATA SOURCE (mutually exclusive — specify exactly one):
+#   transformer_mappings:  pipeline output from the transformer step.
+#                          List one or more transformer mapping YAML paths; the pipeline
+#                          output file (named by output_filename in the transformer mapping)
+#                          is read from {storage_path}/transform/{output_filename}.parquet.
+#   source_file_path:      directory of CSV and/or Parquet files to union into this table.
+#                          Absolute path, or relative to cwd; may use {storage_path}.
+#   snapshot_source_dir:   transformer snapshot output directory (with _manifest.json).
+#                          Used exclusively by snapshot/strict_snapshot tables. The manifest
+#                          is written by the transformer's passthrough snapshot pipeline.
+#
+# Per-table WRITE_MODE — data strategy + schema-drift policy:
+#
+#   "replace"         Data strategy: rewrite ALL rows every run (full table replace).
+#                     Schema drift:  ALLOW — new columns, removed columns, and type
+#                                    changes are accepted silently.
+#                     Use for:       lookup tables, reference data, small fact tables that
+#                                    are always fully available in transform output.
+#
+#   "strict_replace"  Data strategy: rewrite ALL rows every run (full table replace).
+#                     Schema drift:  FAIL — ERROR if any column is added, removed, or
+#                                    retyped since the last run. The run aborts before
+#                                    writing so the existing Hyper table is preserved.
+#                     Use for:       data-only refreshes where an unexpected schema change
+#                                    should require operator review before proceeding.
+#
+#   "append"          Data strategy: insert rows where increment_field > last loaded max.
+#                                    Requires increment_field.
+#                     Schema drift:  REBUILD — on drift, drop the table and rewrite it
+#                                    from the current data (logs a warning; first-run
+#                                    fallback triggers a full Tableau publish that run).
+#                     Use for:       high-volume event tables where incremental loads are
+#                                    preferred but schema evolution should not block the run.
+#
+#   "strict_append"   Data strategy: insert rows where increment_field > last loaded max.
+#                                    Requires increment_field.
+#                     Schema drift:  FAIL — ERROR if any column is added, removed, or
+#                                    retyped. The watermark is not advanced on failure.
+#                     Use for:       append pipelines where schema changes need attention
+#                                    before data is loaded (audit, compliance tables, etc.).
+#
+#   "snapshot"        Data strategy: replace this table only when the transformer manifest
+#                                    shows a newer snapshotTimestamp than the stored
+#                                    watermark. Requires snapshot_source_dir.
+#                     Schema drift:  ALLOW — schema changes are accepted silently.
+#                     Use for:       entity/dimension tables delivered as hourly snapshots
+#                                    where the operator is comfortable with schema evolution.
+#
+#   "strict_snapshot" Data strategy: same watermark-gated snapshot replace as "snapshot".
+#                                    Requires snapshot_source_dir.
+#                     Schema drift:  FAIL — ERROR if columns changed. The watermark is NOT
+#                                    advanced on error so the next run retries the same new
+#                                    snapshot and will fail again until the schema is resolved.
+#                     Use for:       snapshot tables where a schema change should require
+#                                    operator attention before the snapshot is accepted.
+
+tables:
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # EXAMPLE A: replace table via transformer pipeline
+  # ──────────────────────────────────────────────────────────────────────────
+  - table: "MyLookupTable"         # ← REQUIRED: table name in the .hyper file
+    schema: "Extract"              # ← Hyper schema name; "Extract" is the Tableau default
+    transformer_mappings:          # ← pipeline(s) whose output Parquet feeds this table
+      - "mappings/transformer/my_lookup_pipeline.yaml"
+    write_mode: "replace"
+    # write_mode: "strict_replace"  # Uncomment to ERROR on schema changes instead.
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # EXAMPLE B: append (incremental) table via transformer pipeline
+  # ──────────────────────────────────────────────────────────────────────────
+  - table: "Events"
+    schema: "Extract"
+    transformer_mappings:
+      - "mappings/transformer/my_events_pipeline.yaml"
+    write_mode: "append"
+    # write_mode: "strict_append"   # Uncomment to ERROR on schema changes instead of auto-rebuild.
+    increment_field: "eventTime"
+    #   Required for append/strict_append.
+    #   Name of the timestamp/numeric column used as the incremental high-water mark.
+    #   New rows written on each run = rows where increment_field > max value from the last run.
+    #   On first run (no existing table), ALL rows are written and the max is stored.
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # EXAMPLE C: replace table from a directory of raw CSV/Parquet files
+  # ──────────────────────────────────────────────────────────────────────────
+  - table: "ExternalReference"
+    schema: "Extract"
+    source_file_path: "{storage_path}/external/reference_files"
+    #   Directory containing CSV and/or Parquet files. All files are unioned (columns
+    #   matched by name; missing columns filled with null). May use {storage_path}.
+    write_mode: "replace"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # EXAMPLE D: snapshot table (entity dimension, replace-on-new-snapshot)
+  # ──────────────────────────────────────────────────────────────────────────
+  - table: "users"
+    schema: "snapshots"            # Recommended: use "snapshots" for snapshot tables to
+                                   # separate them visually from event tables in Tableau.
+    write_mode: "snapshot"
+    # write_mode: "strict_snapshot"  # Uncomment to ERROR on schema changes instead.
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+    #   Required for snapshot/strict_snapshot.
+    #   Directory where the transformer snapshot pipeline wrote per-entity Parquet files
+    #   and the _manifest.json sidecar. The table name MUST match the entityType key in
+    #   the manifest exactly (case-sensitive, as emitted by split_by: entityType).
+    #
+    #   When using entity_snapshot_auto.yaml (the standard snapshot transformer), each
+    #   output Parquet is produced by a multi-site union pipeline and includes a "siteLuid"
+    #   column identifying the source site for every row.
+    #
+    #   Replace mechanic: on a newer snapshot, the existing table is DROPPED and recreated
+    #   from the fresh Parquet (true full replace — no row duplication across runs).
+    #   "snapshot" (allow) absorbs schema changes silently via the drop; "strict_snapshot"
+    #   halts on drift and holds the watermark until the schema mismatch is resolved.
+    snapshot_time_field: "snapshotTimestamp"
+    #   Optional (default: "snapshotTimestamp"). Column in the snapshot Parquet that holds
+    #   the snapshot timestamp. Used only for non-passthrough pipelines that rename this field.
+
+# ════════════════════════════════════════════════════════════════════════════
+# UPSTREAM — optional extractor defaults for --ensure-upstream runs
+# ════════════════════════════════════════════════════════════════════════════
+# When --ensure-upstream is passed to the loader, it runs the extractor and then
+# the transformer(s) before writing to the .hyper file. The extractor needs a
+# TCM URL and PAT; these can be set here as defaults or overridden via CLI flags.
+#
+# upstream:
+#   extractor:
+#     # start_time (string, ISO-8601): earliest event time to extract.
+#     start_time: "2025-01-01T00:00:00Z"
+#     # end_time (string, ISO-8601): latest event time to extract.
+#     end_time: "2025-01-31T23:59:59Z"
+#     # site_ids (string): comma-separated site IDs to scope extraction.
+#     #   Use "All" to extract from all sites visible to the PAT.
+#     site_ids: "All"
+#     # retrieve_tenant_logs (bool): include tenant-level (cross-site) event logs.
+#     #   Default is false (site-scoped only) since tenant logs require special entitlement.
+#     retrieve_tenant_logs: false

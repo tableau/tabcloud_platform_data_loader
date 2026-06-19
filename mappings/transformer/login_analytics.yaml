@@ -1,0 +1,31 @@
+# mappings/transformer/login_analytics.yaml
+# Stub: add inputs and schema fields for login-focused analytics.
+#
+# folder_pattern: bare segments like "eventType=Login" are automatically treated as
+# "**/eventType=Login", matching that directory at any depth in the extract tree.
+# Use explicit ** for clarity, e.g. "**/eventType=Login".
+
+output_filename: "login_analytics"
+
+output:
+  format: "parquet"
+  target_path: "transform"
+  partition_by: []
+  schema:
+    - field: "login_time"
+      type: "datetime"
+    - field: "user_id"
+      type: "string"
+    - field: "site_id"
+      type: "string"
+
+inputs:
+  - eventType: "Login"
+    source:
+      folder_pattern: "eventType=Login"
+      file_pattern: "*.json"
+      recursive: true
+    mappings:
+      login_time: "timestamp"
+      user_id: "userId"
+      site_id: "siteId"

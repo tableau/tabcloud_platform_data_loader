@@ -1,0 +1,146 @@
+# Integration-test loader mapping: Hyper bundle for E2E pipeline tests.
+#
+# Writes a local .hyper only (NO publish block) so tests never touch a real
+# Tableau site. To exercise the publish path, add a `publish:` block under
+# `target:` and store a publish PAT via:
+#     tabcloud-secrets set tabcloud-test publish-pat
+#
+# Tables here cover the two main strategies:
+#   - ActivityLog : append (incremental) event table
+#   - users       : snapshot (replace-on-new-snapshot) entity dimension
+#   - workbooks   : snapshot entity dimension
+#
+# write_mode controls the data strategy and schema-drift policy for each table:
+#
+#   "replace"         Data strategy: rewrite ALL rows every run.
+#                     Schema drift:  ALLOW — column additions/removals/renames accepted.
+#
+#   "strict_replace"  Data strategy: rewrite ALL rows every run.
+#                     Schema drift:  FAIL — ERROR if any column changed.
+#
+#   "append"          Data strategy: insert rows where increment_field > last loaded max.
+#                     Schema drift:  REBUILD — auto-drop and full replace on drift.
+#                     Requires:      increment_field.
+#
+#   "strict_append"   Data strategy: insert rows where increment_field > last loaded max.
+#                     Schema drift:  FAIL — ERROR if any column changed; watermark held.
+#                     Requires:      increment_field.
+#
+#   "snapshot"        Data strategy: full table replace (DROP + recreate) only when the
+#                                    transformer manifest shows a newer snapshot_time than
+#                                    the stored watermark.  Each snapshot table includes a
+#                                    "siteLuid" column added by the multi-site union pipeline.
+#                     Schema drift:  ALLOW — column additions silently absorbed via the drop.
+#                     Requires:      snapshot_source_dir.
+#
+#   "strict_snapshot" Data strategy: same watermark-gated DROP + recreate as "snapshot".
+#                     Schema drift:  FAIL — ERROR if columns changed; watermark NOT advanced
+#                                    so the next run retries the same new snapshot.
+#                     Requires:      snapshot_source_dir.
+
+load_name: "test_platform_data_bundle"
+
+target:
+  type: "hyper"
+  hyper_path: "{storage_path}/loader/test_platform_data_bundle.hyper"
+
+tables:
+
+  # Incremental activity-log event table.
+  - table: "ActivityLog"
+    schema: "Extract"
+    transformer_mappings:
+      - "tests/integration/mappings/test_activity_log.yaml"
+    write_mode: "append"
+    increment_field: "eventTime"
+
+  # Snapshot entity dimensions (table name MUST match the entityType key, case-sensitive).
+  # Each snapshot table includes a "siteLuid" column identifying the source site (added by
+  # the multi-site union pipeline in entity_snapshot_auto.yaml / test_entity_snapshot.yaml).
+  # Change write_mode to "strict_snapshot" on any entry to ERROR on schema changes instead.
+  - table: "users"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    # write_mode: "strict_snapshot"  # ERROR on schema change instead of absorbing silently
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "workbooks"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "capabilities"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "system_users"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "tasks"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "groups"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "projects_contents"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "group_users"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "datasources"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "next_gen_permissions"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "projects"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "views"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "subscriptions"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "flows"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  - table: "data_connections"
+    schema: "snapshots"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/snapshots"
+
+  # Reference tables: tenant-wide user/site lists from TCM REST API.
+  - table: "tenant_users"
+    schema: "reference"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/reference"
+
+  - table: "tenant_sites"
+    schema: "reference"
+    write_mode: "snapshot"
+    snapshot_source_dir: "{storage_path}/transform/reference"
