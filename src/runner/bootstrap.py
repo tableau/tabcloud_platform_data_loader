@@ -144,22 +144,30 @@ def _interactive_bootstrap(config_path: str, missing: bool) -> Optional[str]:
     default_save_path = os.path.abspath("./run.yml")
     config_path = _prompt_save_path(default_save_path)
 
+    # Ask where pipeline artifacts should live. Default to a location next to
+    # the config (but never *inside* a `config/` dir) so data does not get
+    # buried alongside run.yml.
+    storage_base = os.getcwd() if config_path is None else os.path.dirname(config_path)
+    storage_path = _prompt_storage_path(storage_base)
+
     if config_path is None:
         # User declined to save — write a temp file so the caller can load it.
         # No plaintext warning for ephemeral temp files.
         import tempfile
         fd, tmp_path = tempfile.mkstemp(suffix=".yml", prefix="tabcloud-run-")
         os.close(fd)
-        _write_full_run_yml(tmp_path, tcm_url, token_name, secret_ref)
+        _write_full_run_yml(tmp_path, tcm_url, token_name, secret_ref, storage_path)
         config_path = tmp_path
         print(f"\n  Using temporary config: {config_path}")
+        print(f"  Storage: {storage_path}")
         print("  (Not saved — pass -c <path> next time to use a persistent file)")
     else:
         # Persistent file — warn loudly if the secret would be stored as plaintext.
         if not _is_secret_ref(secret_ref):
             secret_ref = _warn_plaintext_and_offer_env(secret_plain)
-        _write_full_run_yml(config_path, tcm_url, token_name, secret_ref)
+        _write_full_run_yml(config_path, tcm_url, token_name, secret_ref, storage_path)
         print(f"\n  Saved: {config_path}")
+        print(f"  Storage: {storage_path}")
         print(f"  Run again with:  tabcloud-run -c {config_path}")
 
     print()
@@ -201,6 +209,48 @@ def _prompt_save_path(default_path: str) -> Optional[str]:
 
     if answer.lower() in ("no", "n"):
         return None
+    if not answer:
+        return default_path
+    # Expand ~ and make absolute
+    return os.path.abspath(os.path.expanduser(answer))
+
+
+def _default_storage_path(config_dir: str) -> str:
+    """
+    Choose a sensible default storage location given the directory that will
+    hold run.yml.
+
+    Data should not be buried inside a ``config/`` directory, so when the
+    config lives in a folder literally named ``config`` the default storage
+    is placed as a sibling of that folder instead of underneath it.
+    """
+    config_dir = os.path.abspath(config_dir)
+    if os.path.basename(config_dir).lower() == "config":
+        base = os.path.dirname(config_dir)
+    else:
+        base = config_dir
+    return os.path.join(base, "data_workspace")
+
+
+def _prompt_storage_path(config_dir: str) -> str:
+    """
+    Ask where pipeline artifacts (extracts, transforms, logs) should be stored.
+
+    :param config_dir: Directory that will hold run.yml; used to anchor the
+                        default storage location.
+    :returns: Absolute path to the storage root.
+    """
+    default_path = _default_storage_path(config_dir)
+    print()
+    print("  Where should pipeline data be stored?")
+    print("  This holds extracts, transformed output, and logs (can be large).")
+    print("  Press Enter to use the default, or type a path.")
+    try:
+        answer = input(f"  Storage path [default: {default_path}]: ").strip()
+    except (KeyboardInterrupt, EOFError):
+        print()
+        sys.exit(0)
+
     if not answer:
         return default_path
     # Expand ~ and make absolute
@@ -338,14 +388,25 @@ def _load_template() -> str:
     """)
 
 
-def _write_full_run_yml(path: str, tcm_url: str, token_name: str, secret_ref: str) -> None:
+def _write_full_run_yml(
+    path: str,
+    tcm_url: str,
+    token_name: str,
+    secret_ref: str,
+    storage_path: str = "",
+) -> None:
     """
-    Write a run.yml by substituting the three connection values into the
-    run.example.yml template, preserving all comments and other sections.
+    Write a run.yml by substituting the connection values (and storage path)
+    into the run.example.yml template, preserving all comments and other
+    sections.
 
     Relative ``mapping:`` paths (e.g. ``mappings/transformer/foo.yaml``) are
     rewritten to absolute paths anchored at the project root so the file works
     correctly no matter where it is saved.
+
+    The ``storage.path`` value is replaced with *storage_path* (an absolute
+    directory) when provided, so pipeline artifacts land where the user asked
+    rather than relative to the saved config.
 
     If *secret_ref* is a bare literal (not a recognised secret-reference
     scheme) an inline warning comment is appended to the token_secret line.
@@ -382,6 +443,15 @@ def _write_full_run_yml(path: str, tcm_url: str, token_name: str, secret_ref: st
         lambda m: m.group(1) + root + "/" + m.group(2),
         content, flags=re.MULTILINE,
     )
+
+    # Substitute the storage path so artifacts land where the user chose.
+    # The template's only `path:` key lives under storage:.
+    if storage_path:
+        content = re.sub(
+            r'^(\s+path:\s+)\S+.*$',
+            lambda m: m.group(1) + storage_path + "  # local artifact root",
+            content, flags=re.MULTILINE,
+        )
 
     # When the secret is a bare literal, mark the line so it is easy to spot.
     if not _is_secret_ref(secret_ref):

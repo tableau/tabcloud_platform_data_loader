@@ -68,6 +68,7 @@ def _mock_inputs(
     tcm_url="https://test.online.tableau.com",
     token_name="pat",
     save_path="",       # "" → default (./run.yml); "no" → temp; custom path → that path
+    storage_path="",    # "" → default (next to config); custom path → that path
     keyring_answer="n", # "n" → decline keyring; "y" → accept
     plaintext_choice=None,  # None = no warning prompt; "1" or "2" if warned
     env_var_name="",    # only used when plaintext_choice == "1"
@@ -80,8 +81,9 @@ def _mock_inputs(
       3. "PAT name ..."
       4. "Store the PAT secret in your OS keychain? [Y/n]"   (if keyring importable)
       5. "Save path [default: ...]"
-      6. "Choose [1/2]:"                                      (only when plaintext warned)
-      7. "Environment variable name [...]"                    (only when choice == "1")
+      6. "Storage path [default: ...]"
+      7. "Choose [1/2]:"                                      (only when plaintext warned)
+      8. "Environment variable name [...]"                    (only when choice == "1")
     """
     inputs = [
         "y",            # proceed?
@@ -89,6 +91,7 @@ def _mock_inputs(
         token_name,     # token_name
         keyring_answer, # keyring offer
         save_path,      # save path
+        storage_path,   # storage path
     ]
     if plaintext_choice is not None:
         inputs.append(plaintext_choice)
@@ -419,6 +422,71 @@ class TestPlaintextWarning:
         content = open(config_path).read()
         assert "keyring:" in content
         assert "s3cr3t" not in content
+
+
+class TestStoragePath:
+    """The interactive setup prompts for a storage path and writes it into run.yml."""
+
+    def _read_storage_path(self, content):
+        import re
+        match = re.search(r'^\s+path:\s+(\S+)', content, re.MULTILINE)
+        assert match is not None, "no storage path line found"
+        return match.group(1)
+
+    def test_default_storage_is_sibling_of_config_dir(self, tmp_path, monkeypatch):
+        """Pressing Enter stores data next to run.yml, not relative to cwd."""
+        monkeypatch.chdir(tmp_path)
+        config_path = str(tmp_path / "run.yml")
+        inputs = iter(_mock_inputs(save_path=config_path, storage_path="",
+                                   plaintext_choice="2"))
+
+        with (
+            patch.object(sys.stdin, "isatty", return_value=True),
+            patch("builtins.input", side_effect=lambda _: next(inputs)),
+            patch("getpass.getpass", return_value="s3cr3t"),
+        ):
+            bootstrap.maybe_bootstrap(config_path)
+
+        written = self._read_storage_path(open(config_path).read())
+        assert written == str(tmp_path / "data_workspace")
+
+    def test_default_storage_escapes_config_folder(self, tmp_path, monkeypatch):
+        """When run.yml lives in a 'config' dir, data lands as a sibling of it."""
+        monkeypatch.chdir(tmp_path)
+        config_dir = tmp_path / "config"
+        config_path = str(config_dir / "run.yml")
+        inputs = iter(_mock_inputs(save_path=config_path, storage_path="",
+                                   plaintext_choice="2"))
+
+        with (
+            patch.object(sys.stdin, "isatty", return_value=True),
+            patch("builtins.input", side_effect=lambda _: next(inputs)),
+            patch("getpass.getpass", return_value="s3cr3t"),
+        ):
+            bootstrap.maybe_bootstrap(config_path)
+
+        written = self._read_storage_path(open(config_path).read())
+        # Sibling of config/, never inside it.
+        assert written == str(tmp_path / "data_workspace")
+        assert "config/data_workspace" not in written
+
+    def test_custom_storage_path_is_used(self, tmp_path, monkeypatch):
+        """A path typed at the storage prompt is written verbatim (absolute)."""
+        monkeypatch.chdir(tmp_path)
+        config_path = str(tmp_path / "run.yml")
+        custom_storage = str(tmp_path / "elsewhere" / "store")
+        inputs = iter(_mock_inputs(save_path=config_path, storage_path=custom_storage,
+                                   plaintext_choice="2"))
+
+        with (
+            patch.object(sys.stdin, "isatty", return_value=True),
+            patch("builtins.input", side_effect=lambda _: next(inputs)),
+            patch("getpass.getpass", return_value="s3cr3t"),
+        ):
+            bootstrap.maybe_bootstrap(config_path)
+
+        written = self._read_storage_path(open(config_path).read())
+        assert written == custom_storage
 
 
 class TestIsSecretRef:
