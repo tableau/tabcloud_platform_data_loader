@@ -99,6 +99,31 @@ extraction:
     #   - signin_event
     #   - datasource_access_event
 
+  # ── Tenant admin events ─────────────────────────────────────────────────────
+  # Tableau Cloud Manager admin events (TCM UI actions).  These are tenant-level
+  # only — they are NOT site events and do NOT roll up from sites, so this is a
+  # distinct dataset from the site-scoped event_logs job above.  Retrieved by
+  # default in this example; remove this job if you do not need tenant logs.
+  tenant_event_logs:
+    data: event_logs
+
+    # scope: "tenant" pulls tenant-level TCM admin events.
+    scope: tenant
+
+    # sites: not applicable to tenant scope.  Tenant logs are global to the
+    # tenant, so the `sites:` field is ignored when scope is tenant.
+
+    # Time window.  Same semantics as the site event_logs job above: a fixed
+    # window when start_time/end_time are set, else a rolling lookback_days.
+    # start_time: ""
+    # end_time: ""
+
+    # lookback_days: how many days back from now to start when start/end are absent.
+    lookback_days: 2
+
+    # event_types: filter to specific event types (leave empty for all).
+    # event_types: []
+
   # ── Snapshots ──────────────────────────────────────────────────────────────
   # Entity snapshots (users, workbooks, datasources, etc.) from TCM Parquet API.
   snapshots:
