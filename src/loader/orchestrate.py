@@ -70,6 +70,9 @@ def get_required_pipelines_and_event_types(
     return paths, event_types, mapping_to_load_type
 
 
+_ORCHESTRATE_PAT_ENV = "_TABCLOUD_ORCHESTRATE_PAT"
+
+
 def run_extractor(
     storage_path: str,
     pat_name: str,
@@ -89,13 +92,19 @@ def run_extractor(
     """
     Run extractor as subprocess. Returns exit code (0 = success).
 
+    The PAT secret is injected into the child environment rather than
+    passed on the command line, so it is never visible in ``ps`` output.
+
     :param project_root: Working directory for subprocess (default cwd).
     """
     project_root = project_root or os.getcwd()
+    # Inject the secret into the child env; pass a reference as the flag value
+    # so the secret never appears in argv / ps output.
+    child_env = {**os.environ, _ORCHESTRATE_PAT_ENV: pat_secret}
     cmd = [
         sys.executable, "-m", "extractor",
         "--pat-name", pat_name,
-        "--pat-secret", pat_secret,
+        "--pat-secret-ref", f"env:{_ORCHESTRATE_PAT_ENV}",
         "--api-url", api_url,
         "--start-time", start_time,
         "--end-time", end_time,
@@ -115,7 +124,7 @@ def run_extractor(
         cmd.extend(["--log-dir", log_dir])
     if log_retention_days is not None:
         cmd.extend(["--log-retention-days", str(log_retention_days)])
-    proc = subprocess.run(cmd, cwd=project_root)
+    proc = subprocess.run(cmd, cwd=project_root, env=child_env)
     return proc.returncode
 
 

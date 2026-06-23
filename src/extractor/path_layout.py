@@ -81,6 +81,29 @@ def _parse_date_first_segments(
     return (prefix, date_block, key_seg, remainder)
 
 
+def _validate_api_path(api_path: str) -> None:
+    """Reject API-supplied paths that could escape the storage root.
+
+    Raises :class:`ValueError` for:
+    - Absolute paths (start with ``/`` after normalisation).
+    - Paths containing ``..`` segments.
+
+    This is the first line of defence against a malicious or MITM'd API
+    response attempting a path-traversal write outside the storage tree.
+    """
+    if not api_path:
+        return
+    if api_path.startswith("/"):
+        raise ValueError(
+            f"API path must be relative, got absolute path: {api_path!r}"
+        )
+    parts = api_path.split("/")
+    if ".." in parts:
+        raise ValueError(
+            f"API path contains '..' traversal segment: {api_path!r}"
+        )
+
+
 def map_api_to_local_relpath(
     api_path: str,
     layout: ExtractPathLayout,
@@ -92,10 +115,14 @@ def map_api_to_local_relpath(
     ``api_path`` is the value from the API (always date-first).
     ``segment_key`` is the partition key in the path (default "eventType";
     pass "entityType" for snapshot paths).
+
+    Raises :class:`ValueError` if *api_path* is absolute or contains ``..``
+    segments — callers are expected to log and skip such entries.
     """
     n = normalize_slashes(api_path)
     if not n:
         return n
+    _validate_api_path(n)
     parts = [p for p in n.split("/") if p]
     if layout == ExtractPathLayout.DATE_FIRST:
         return n

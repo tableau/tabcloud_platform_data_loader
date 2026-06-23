@@ -85,7 +85,20 @@ class S3Storage(StorageBackend):
     # -- helpers ------------------------------------------------------------
 
     def _key(self, relative_path: str) -> str:
-        """Full S3 key for *relative_path*."""
+        """Full S3 key for *relative_path*.
+
+        Raises :class:`ValueError` for absolute paths or ``..`` segments so a
+        malicious/compromised API response cannot write outside the configured
+        prefix (consistent with LocalStorage's containment policy).
+        """
+        if relative_path and (
+            relative_path.startswith("/")
+            or ".." in relative_path.replace("\\", "/").split("/")
+        ):
+            raise ValueError(
+                f"relative_path must be relative and must not contain '..', "
+                f"got: {relative_path!r}"
+            )
         if self._prefix:
             return f"{self._prefix}/{relative_path}"
         return relative_path

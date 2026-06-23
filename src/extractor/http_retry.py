@@ -31,6 +31,24 @@ _SENSITIVE_HEADER_KEYS = frozenset(
 _JSON_REDACT_KEYS = frozenset(k.lower() for k in ("token", "pat_secret", "password", "secret"))
 
 
+def redact_url(url: str) -> str:
+    """Return *url* with the query string removed, suitable for debug logs.
+
+    Presigned URLs embed a time-limited signature in the query string
+    (``X-Amz-Signature``, ``X-Goog-Signature``, etc.).  Stripping the query
+    string keeps the host and path (sufficient for debugging) without
+    persisting the credential in log files.
+
+    Non-URL strings (e.g. already-redacted values) are returned unchanged.
+    """
+    if not url:
+        return url
+    idx = url.find("?")
+    if idx == -1:
+        return url
+    return url[:idx] + "?<redacted>"
+
+
 def sanitize_headers(headers: Optional[Dict[str, str]]) -> Dict[str, str]:
     """Return a copy of headers safe for logs (secrets redacted)."""
     if not headers:
@@ -375,7 +393,7 @@ def post_presigned_batch_with_retry(
                     "http_phase": "response",
                     "method": "POST",
                     "request_url": url,
-                    "response_url": getattr(resp, "url", None) or url,
+                    "response_url": redact_url(getattr(resp, "url", None) or url),
                     "attempt": attempt + 1,
                     "status_code": resp.status_code,
                     "elapsed_ms": elapsed_ms,
@@ -505,13 +523,16 @@ def download_get_with_retry(
     Retries on transport errors and 429/5xx. Re-raises immediately on other HTTP errors.
     """
     timeout = (connect_timeout, read_timeout)
+    # Presigned URLs embed a signature in the query string; strip it before
+    # logging so it is not persisted to the run-log files.
+    url_for_log = redact_url(url)
     for attempt in range(max_attempts):
         if http_debug is not None:
             http_debug(
                 {
                     "http_phase": "request",
                     "method": "GET",
-                    "url": url,
+                    "url": url_for_log,
                     "attempt": attempt + 1,
                     "max_attempts": max_attempts,
                     "stream": True,
@@ -526,8 +547,8 @@ def download_get_with_retry(
                 dbg: Dict[str, Any] = {
                     "http_phase": "response",
                     "method": "GET",
-                    "request_url": url,
-                    "response_url": getattr(resp, "url", None) or url,
+                    "request_url": url_for_log,
+                    "response_url": redact_url(getattr(resp, "url", None) or url),
                     "attempt": attempt + 1,
                     "status_code": resp.status_code,
                     "elapsed_ms": elapsed_ms,
@@ -545,7 +566,7 @@ def download_get_with_retry(
                     {
                         "http_phase": "transport_error",
                         "method": "GET",
-                        "url": url,
+                        "url": url_for_log,
                         "attempt": attempt + 1,
                         "elapsed_ms": int((time.perf_counter() - t_req) * 1000),
                         "error_type": type(e).__name__,
@@ -564,7 +585,7 @@ def download_get_with_retry(
                     {
                         "http_phase": "retry_scheduled",
                         "method": "GET",
-                        "url": url,
+                        "url": url_for_log,
                         "after_attempt": attempt + 1,
                         "reason": "transient",
                     }

@@ -14,6 +14,14 @@ hyperd.log
 config/config.test.ini
 config/config.ini
 
+# Pipeline run config — may contain plaintext PAT secrets after interactive bootstrap.
+# Only the .example templates are committed.
+run.yml
+config/run.yml
+config/run.test.yml
+!config/run.example.yml
+!config/run.test.yml.example
+
 # Storage backend YAML files (contain bucket names / credential refs).
 # Only the .example templates are committed.
 config/storage.yaml
