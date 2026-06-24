@@ -64,7 +64,7 @@ connection:
 
 extraction:
 
-  # ── Event logs ─────────────────────────────────────────────────────────────
+  # ── Site event logs ─────────────────────────────────────────────────────────
   # Activity-log events from site-scoped Platform Data API endpoints.
   event_logs:
     data: event_logs
