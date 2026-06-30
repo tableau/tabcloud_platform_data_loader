@@ -365,7 +365,7 @@ def drop_hyper_table(
     try:
         from tableauhyperapi import HyperProcess, Connection, Telemetry, TableName
     except ImportError:
-        logger.warning(
+        logger.error(
             "tableauhyperapi not available; cannot drop table %s.%s from %s. "
             "Install with: pip install tableauhyperapi",
             schema, table, hyper_path,

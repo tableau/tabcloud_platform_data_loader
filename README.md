@@ -1,6 +1,6 @@
 # Platform Data Loader for Tableau Cloud
 
-Retrieves and replicates Tableau Cloud platform data — activity logs and entity snapshots — from the Tableau Cloud Manager API. Uses PAT authentication, supports tenant and site-level logs, pluggable storage (local disk; S3 experimental), and structured JSON operation logging to stdout. Includes interfaces to do simple unions, exports to .csv or .parquet, and publishes to Tableau data sources.
+Tableau Cloud holds a lot of [useful data about what's happening in your environment](https://help.tableau.com/current/api/cloud-manager/en-us/docs/platform_data.html) — who's logging in, what's being used, and regular snapshots of users, groups, content, and more — and it's all available through an API, though in a raw format that takes some work to turn into something useful. This tool does that work for you: it pulls the data out, cleans it up into simple tables, and (if you want) loads it straight into a ready-to-use Tableau data source — all from a single config file. It's built in three pieces you can run together or on their own, so you can use just the part you need and adapt it to new uses by editing config instead of writing code.
 
 There are three basic parts to this tool:
 - **Extractor**: Retrieves raw logs and/or entity snapshots from Tableau Cloud based on date range and/or type, and replicates them to local storage (or S3 — experimental). By default pulls **both** activity logs and entity snapshots; tenant logs excluded by default.
@@ -33,7 +33,12 @@ tabcloud-run -c config/run.yml --explain
 
 The runner drives the full **extraction → transform → load** pipeline from a
 single `run.yml` file.  All three phases run automatically with sensible defaults
-when the corresponding blocks are absent from the config.  Publishing to Tableau
+when the corresponding blocks are absent from the config.  By default, this
+retrieves all event (activity) logs from every site in the tenant along with the
+most recent snapshots for each site, and dumps all of that into a single `.hyper`
+file as a set of tables.  If you want different behavior, customize `run.yml` —
+and each module can be tuned further through the mappings referenced from
+`run.yml` (transformer and loader mapping files).  Publishing to Tableau
 is opt-in and destination-driven — add a `destinations:` block and reference it
 from a `load:` job.
 
