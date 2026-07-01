@@ -1,5 +1,7 @@
 # Platform Data Loader for Tableau Cloud
 
+[![Community Supported](https://img.shields.io/badge/Support%20Level-Community%20Supported-457387.svg)](https://www.tableau.com/support-levels-it-and-developer-tools)
+
 Tableau Cloud holds a lot of [useful data about what's happening in your environment](https://help.tableau.com/current/api/cloud-manager/en-us/docs/platform_data.html) — who's logging in, what's being used, and regular snapshots of users, groups, content, and more — and it's all available through an API, though in a raw format that takes some work to turn into something useful. This tool does that work for you: it pulls the data out, cleans it up into simple tables, and (if you want) loads it straight into a ready-to-use Tableau data source — all from a single config file. It's built in three pieces you can run together or on their own, so you can use just the part you need and adapt it to new uses by editing config instead of writing code.
 
 There are three basic parts to this tool:
